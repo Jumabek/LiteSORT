@@ -1,8 +1,10 @@
 # vim: expandtab:ts=4:sw=4
 from __future__ import division, print_function, absolute_import
+from ultralytics import YOLO
 
 import argparse
 import os
+import time
 
 import cv2
 import numpy as np
@@ -13,6 +15,20 @@ from deep_sort import nn_matching
 from deep_sort.detection import Detection
 from deep_sort.tracker import Tracker
 from opts import opt
+
+
+import os
+import cv2
+from PIL import Image
+import torch
+from torchvision import transforms
+from fastreid.config import get_cfg
+from fastreid.engine import DefaultTrainer
+from fastreid.utils.checkpoint import Checkpointer
+
+
+import logging
+logging.getLogger().setLevel(logging.ERROR)
 
 
 def gather_sequence_info(sequence_dir, detection_file):
@@ -94,7 +110,95 @@ def gather_sequence_info(sequence_dir, detection_file):
     return seq_info
 
 
-def create_detections(detection_mat, frame_idx, min_height=0):
+# This can be defined outside of the main function to avoid redefinition
+def get_transform(size=(256, 128)):
+    transform = transforms.Compose([
+        transforms.Resize(size),
+        transforms.ToTensor()
+    ])
+    return transform
+
+
+def get_apperance_features(yolo_results, image, reid_model):
+    if opt.iou_only:
+        return yolo_results[0].appearance_features.cpu().numpy()
+        # return np.zeros*len(yolo_results[0].boxes.data)
+
+    if opt.yolosort:
+        return yolo_results[0].appearance_features.cpu().numpy()
+
+    # Convert the image to RGB and then to PIL format only if it's needed
+    if opt.BoT:
+        img_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+
+        transform = get_transform((256, 128))
+        boxes = yolo_results[0].boxes.data.cpu().numpy()
+        features_list = []
+
+        for box in boxes:
+            x1, y1, x2, y2 = box[:4]
+            crop = img_pil.crop((x1, y1, x2, y2))
+            tensor_crop = transform(crop).unsqueeze(0).cuda()
+            feature = reid_model(tensor_crop).detach().cpu().numpy().squeeze()
+            features_list.append(feature)
+
+        return features_list  # [N, (2024,)]
+    else:  # means deepsort
+        boxes = yolo_results[0].boxes.data.cpu().numpy()
+        features_list = []
+
+        for box in boxes:
+            x1, y1, x2, y2 = map(int, box[:4])
+
+            # Crop using OpenCV
+            crop = image[y1:y2, x1:x2]
+
+            # Convert to the RGB format to be consistent with the previous format you used
+            crop_rgb = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
+
+            # Extract features
+            feature = reid_model([crop_rgb]).detach().cpu().numpy().squeeze()
+            # print(feature.shape)
+            features_list.append(feature)
+        return features_list  # [N, (1,128)]
+
+
+def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
+    detection_list = []
+    # Get the specific image frame path
+    # assuming frame names are like 000001.jpg, 000002.jpg, ...
+    img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}.jpg')
+    # print(f"Processing image {img_path}")
+
+    if not os.path.exists(img_path):
+        raise ValueError(f"Image path {img_path} doesn't exist.")
+
+    # Load and predict
+    image = cv2.imread(img_path)
+    # Apply detection for 'person' class
+    yolo_results = model.predict(image, classes=[0], verbose=False, imgsz=1280)
+    appearance_features = get_apperance_features(
+        yolo_results, image, reid_model)
+
+    boxes = yolo_results[0].boxes.data.cpu().numpy()
+
+    for box, feature in zip(boxes, appearance_features):
+        xmin, ymin, xmax, ymax, conf, _ = box
+        x_tl = xmin
+        y_tl = ymin
+        width = xmax - xmin
+        height = ymax - ymin
+        bbox = (x_tl, y_tl, width, height)
+        if height < min_height:
+            continue
+        detection = Detection(bbox, conf, feature)
+
+        detection_list.append(detection)
+
+    return detection_list
+
+
+def create_detections_original(detection_mat, frame_idx, min_height=0):
     """Create detections for given frame index from the raw detection matrix.
 
     Parameters
@@ -115,7 +219,7 @@ def create_detections(detection_mat, frame_idx, min_height=0):
         Returns detection responses at given frame index.
 
     """
-    frame_indices = detection_mat[:, 0].astype(np.int)
+    frame_indices = detection_mat[:, 0].astype(int)
     mask = frame_indices == frame_idx
 
     detection_list = []
@@ -125,6 +229,28 @@ def create_detections(detection_mat, frame_idx, min_height=0):
             continue
         detection_list.append(Detection(bbox, confidence, feature))
     return detection_list
+
+
+def load_reid_model():
+    cfg_path = '/home/juma/code/StrongSORT/fast-reid/configs/DukeMTMC/bagtricks_S50.yml'
+    model_weights = 'checkpoints/FastReID/market_bot_R50.pth'
+
+    cfg = get_cfg()
+    cfg.merge_from_file(cfg_path)
+    cfg.MODEL.BACKBONE.PRETRAIN = False
+    cfg.MODEL.WEIGHTS = model_weights
+    model = DefaultTrainer.build_model(cfg)
+    model.eval()
+    Checkpointer(model).load(cfg.MODEL.WEIGHTS)
+    return model
+
+
+def load_deep_sort_model():
+    from deep_apperance import DeepSORTApperanceExtractor
+    model = DeepSORTApperanceExtractor(
+        "/home/juma/code/StrongSORT/checkpoints/FastReID/deepsort/original_ckpt.t7")
+
+    return model
 
 
 def run(sequence_dir, detection_file, output_file, min_confidence,
@@ -158,6 +284,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
         If True, show visualization of intermediate tracking results.
 
     """
+
     seq_info = gather_sequence_info(sequence_dir, detection_file)
     metric = nn_matching.NearestNeighborDistanceMetric(
         'cosine',
@@ -166,13 +293,26 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     )
     tracker = Tracker(metric)
     results = []
+    model = YOLO("yolov8m.pt")
+
+    if opt.iou_only or opt.yolosort:
+        reid_model = None
+    else:
+        reid_model = load_reid_model() if opt.BoT else load_deep_sort_model()
+    # reid_model = load_deep_sort_model()
+
+    tick = time.time()
 
     def frame_callback(vis, frame_idx):
         # print("Processing frame %05d" % frame_idx)
 
         # Load image and generate detections.
+
         detections = create_detections(
-            seq_info["detections"], frame_idx, min_detection_height)
+            sequence_dir, frame_idx, model, min_detection_height, reid_model)
+        # detections = create_detections_original(
+        #     seq_info["detections"], frame_idx, min_detection_height)
+
         detections = [d for d in detections if d.confidence >= min_confidence]
 
         # Run non-maxima suppression.
@@ -203,7 +343,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
                 continue
             bbox = track.to_tlwh()
             results.append([
-                    frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
+                frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
 
     # Run tracker.
     if display:
@@ -216,13 +356,22 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     f = open(output_file, 'w')
     for row in results:
         print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (
-            row[0], row[1], row[2], row[3], row[4], row[5]),file=f)
+            row[0], row[1], row[2], row[3], row[4], row[5]), file=f)
+    tock = time.time()
+    print('time: {}s'.format(tock - tick))
+    time_per_frame = (tock - tick) / \
+        (seq_info["max_frame_idx"] - seq_info["min_frame_idx"])
+    FPS = 1/time_per_frame
+    print(
+        f'FPS: {FPS:.1f}')
+
 
 def bool_string(input_string):
-    if input_string not in {"True","False"}:
+    if input_string not in {"True", "False"}:
         raise ValueError("Please Enter a valid Ture/False choice")
     else:
         return (input_string == "True")
+
 
 def parse_args():
     """ Parse command line arguments.
@@ -230,7 +379,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Deep SORT")
     parser.add_argument(
         "--sequence_dir", help="Path to MOTChallenge sequence directory",
-        default=None, required=True)
+        default='datasets/MOT17', required=True)
     parser.add_argument(
         "--detection_file", help="Path to custom detections.", default=None,
         required=True)

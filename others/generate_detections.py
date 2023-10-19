@@ -5,21 +5,22 @@
 @Time: 2021/11/8 17:02
 @Discription: 生成检测特征
 """
-import os
-import cv2
-import sys
-import glob
-import torch
-import numpy as np
-from PIL import Image
-from datetime import datetime
-from torchvision import transforms
-from os.path import join, exists, split
+# sys.path.append('fast-reid')
 
-sys.path.append('.')
-from fastreid.config import get_cfg
-from fastreid.utils.checkpoint import Checkpointer
 from fastreid.engine import DefaultTrainer, default_argument_parser, default_setup, launch
+from fastreid.utils.checkpoint import Checkpointer
+from fastreid.config import get_cfg
+from os.path import join, exists, split
+from torchvision import transforms
+from datetime import datetime
+from PIL import Image
+import numpy as np
+import torch
+import glob
+import sys
+import cv2
+import os
+
 
 def setup(args):
     cfg = get_cfg()
@@ -29,20 +30,24 @@ def setup(args):
     default_setup(cfg, args)
     return cfg
 
+
 def get_model(cfg):
     model = DefaultTrainer.build_model(cfg)
     model.eval()
     Checkpointer(model).load(cfg.MODEL.WEIGHTS)
     return model
 
+
 def get_transform(size=(256, 128)):
-    norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    norm = transforms.Normalize(
+        mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     transform = transforms.Compose([
         transforms.Resize(size),
         transforms.ToTensor(),
         # norm,
     ])
     return transform
+
 
 if __name__ == '__main__':
     print(datetime.now())
@@ -55,8 +60,8 @@ if __name__ == '__main__':
     cfg = setup(args)
     cfg.defrost()
     cfg.MODEL.BACKBONE.PRETRAIN = False
-    cfg.MODEL.WEIGHTS = '/data/dyh/checkpoints/FastReID/DukeMTMC_BoT_S50/model_best.pth'
-    cfg.OUTPUT_DIR = '/data/dyh/checkpoints/FastReID/tmp_log'
+    cfg.MODEL.WEIGHTS = '../checkpoints/FastReID/market_bot_R50.pth'
+    cfg.OUTPUT_DIR = '/checkpoints/FastReID/tmp_log'
 
     # cfg.MODEL.BACKBONE.WITH_IBN = False
 
@@ -70,7 +75,8 @@ if __name__ == '__main__':
     # dir_out_det = '/data/dyh/results/StrongSORT/Features/YOLOX_nms.8_score.6_BoT-S50_DukeMTMC_again'
     # dir_out_det = '/data/dyh/results/StrongSORT/TEST/MOT17_YOLOX_nms.8_score.1_BoT-S50'
     dir_out_det = '/data/dyh/results/StrongSORT/TEST/MOT20_YOLOX_nms.8_score.1_BoT-S50'
-    if not exists(dir_out_det): os.mkdir(dir_out_det)
+    if not exists(dir_out_det):
+        os.mkdir(dir_out_det)
     model = get_model(cfg)
 
     transform = get_transform((256, 128))
@@ -84,13 +90,15 @@ if __name__ == '__main__':
         dir_img = join(root_img, '{}/img1'.format(video))
         detections = np.loadtxt(file, delimiter=',')
         detections = detections[detections[:, 6] >= thres_score]
-        mim_frame, max_frame = int(min(detections[:, 0])), int(max(detections[:, 0]))
+        mim_frame, max_frame = int(
+            min(detections[:, 0])), int(max(detections[:, 0]))
         list_res = list()
         for frame in range(mim_frame, max_frame + 1):
             # print('  processing the frame {}...'.format(frame))
             img = Image.open(join(dir_img, '%06d.jpg' % frame))
             detections_frame = detections[detections[:, 0] == frame]
-            batch = [img.crop((b[2], b[3], b[2] + b[4], b[3] + b[5])) for b in detections_frame]
+            batch = [img.crop((b[2], b[3], b[2] + b[4], b[3] + b[5]))
+                     for b in detections_frame]
             batch = [transform(patch) * 255. for patch in batch]
             if batch:
                 batch = torch.stack(batch, dim=0).cuda()
@@ -99,6 +107,3 @@ if __name__ == '__main__':
         res = np.concatenate(list_res, axis=0)
         np.save(join(dir_out_det, video + '.npy'), res, allow_pickle=False)
     print(datetime.now())
-
-
-
