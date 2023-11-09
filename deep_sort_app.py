@@ -1,5 +1,6 @@
 # vim: expandtab:ts=4:sw=4
 from __future__ import division, print_function, absolute_import
+from fastreid.modeling import build_model
 from ultralytics import YOLO
 
 import argparse
@@ -23,7 +24,6 @@ from PIL import Image
 import torch
 from torchvision import transforms
 from fastreid.config import get_cfg
-from fastreid.engine import DefaultTrainer
 from fastreid.utils.checkpoint import Checkpointer
 
 
@@ -121,7 +121,8 @@ def get_transform(size=(256, 128)):
 
 def get_apperance_features(yolo_results, image, reid_model):
     if opt.iou_only:
-        return yolo_results[0].appearance_features.cpu().numpy()
+        # yolo_results[0].appearance_features.cpu().numpy()
+        return [None] * len(yolo_results[0].boxes.data)
         # return np.zeros*len(yolo_results[0].boxes.data)
 
     if opt.yolosort:
@@ -176,7 +177,8 @@ def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
     # Load and predict
     image = cv2.imread(img_path)
     # Apply detection for 'person' class
-    yolo_results = model.predict(image, classes=[0], verbose=False, imgsz=1280)
+    yolo_results = model.predict(
+        image, classes=[0], verbose=False, imgsz=opt.input_resolution, yolosort=opt.yolosort, conf=opt.min_confidence)
     appearance_features = get_apperance_features(
         yolo_results, image, reid_model)
 
@@ -233,13 +235,13 @@ def create_detections_original(detection_mat, frame_idx, min_height=0):
 
 def load_reid_model():
     cfg_path = '/home/juma/code/StrongSORT/fast-reid/configs/DukeMTMC/bagtricks_S50.yml'
-    model_weights = 'checkpoints/FastReID/market_bot_R50.pth'
+    model_weights = 'checkpoints/FastReID/DukeMTMC_BoT-S50.pth'
 
     cfg = get_cfg()
     cfg.merge_from_file(cfg_path)
     cfg.MODEL.BACKBONE.PRETRAIN = False
     cfg.MODEL.WEIGHTS = model_weights
-    model = DefaultTrainer.build_model(cfg)
+    model = build_model(cfg)  # Use build_model directly
     model.eval()
     Checkpointer(model).load(cfg.MODEL.WEIGHTS)
     return model
@@ -284,6 +286,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
         If True, show visualization of intermediate tracking results.
 
     """
+    logging.debug(f"min_confidence = {min_confidence}")
 
     seq_info = gather_sequence_info(sequence_dir, detection_file)
     metric = nn_matching.NearestNeighborDistanceMetric(
@@ -295,7 +298,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     results = []
     model = YOLO("yolov8m.pt")
 
-    if opt.iou_only or opt.yolosort:
+    if opt.iou_only or opt.yolosort or opt.precomputed_features:
         reid_model = None
     else:
         reid_model = load_reid_model() if opt.BoT else load_deep_sort_model()
@@ -308,10 +311,12 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
 
         # Load image and generate detections.
 
-        detections = create_detections(
-            sequence_dir, frame_idx, model, min_detection_height, reid_model)
-        # detections = create_detections_original(
-        #     seq_info["detections"], frame_idx, min_detection_height)
+        if opt.precomputed_features:
+            detections = create_detections_original(
+                seq_info["detections"], frame_idx, min_detection_height)
+        else:
+            detections = create_detections(
+                sequence_dir, frame_idx, model, min_detection_height, reid_model)
 
         detections = [d for d in detections if d.confidence >= min_confidence]
 
@@ -336,6 +341,9 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
             vis.set_image(image.copy())
             vis.draw_detections(detections)
             vis.draw_trackers(tracker.tracks)
+            vis.put_metadata(
+                tracker_name='strongSORT')
+            vis.save_visualization()
 
         # Store results.
         for track in tracker.tracks:
@@ -347,7 +355,8 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
 
     # Run tracker.
     if display:
-        visualizer = visualization.Visualization(seq_info, update_ms=5)
+        visualizer = visualization.Visualization(
+            seq_info, update_ms=5, tracker_name='strongSORT')
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
@@ -357,13 +366,16 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     for row in results:
         print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (
             row[0], row[1], row[2], row[3], row[4], row[5]), file=f)
+
     tock = time.time()
-    print('time: {}s'.format(tock - tick))
-    time_per_frame = (tock - tick) / \
-        (seq_info["max_frame_idx"] - seq_info["min_frame_idx"])
-    FPS = 1/time_per_frame
+    time_spent_for_the_sequence = tock - tick
+    time_info_s = f'time: {time_spent_for_the_sequence:.0f}s'
+
+    num_frames = (seq_info["max_frame_idx"] - seq_info["min_frame_idx"])
+    avg_time_per_frame = (time_spent_for_the_sequence) / num_frames
+
     print(
-        f'FPS: {FPS:.1f}')
+        f'{time_info_s} | Avg FPS: {1/avg_time_per_frame:.1f}')
 
 
 def bool_string(input_string):

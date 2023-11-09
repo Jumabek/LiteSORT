@@ -257,7 +257,7 @@ class YOLO:
         if not self.predictor:
             self.task = overrides.get('task') or self.task
             self.predictor = TASK_MAP[self.task][3](
-                overrides=overrides, _callbacks=self.callbacks)
+                overrides=overrides, _callbacks=self.callbacks)  # intiializes predictor
             self.predictor.setup_model(model=self.model, verbose=is_cli)
         else:  # only update args if predictor is already setup
             self.predictor.args = get_cfg(self.predictor.args, overrides)

@@ -11,7 +11,7 @@ import copy
 
 class DetectionPredictor(BasePredictor):
 
-    def postprocess(self, preds, img, orig_imgs):
+    def postprocess(self, preds, img, orig_imgs, yolosort=False):
 
         # here img is [batchsize, channels, height, width] format
         """Postprocesses predictions and returns a list of Results objects."""
@@ -44,36 +44,38 @@ class DetectionPredictor(BasePredictor):
                 pred[:, :4] = ops.scale_boxes(
                     img.shape[2:], pred[:, :4], orig_img.shape)
 
+                # feature map extraction code for apperance based tracking
                 # bounding boxes are in img.shape format, so we need to scale them to feature map resolution
                 pred_for_feature_map[i][:, :4] = ops.scale_boxes(
                     img.shape[2:], pred_for_feature_map[i][:, :4], reshaped_feature_map.shape)
 
-                # Extracting features directly instead of calling ops.get_feature_map()
-                # Convert to integer indices
                 boxes = pred_for_feature_map[i][:, :4].long()
                 # convert boxes  to numpy array below
                 boxes = boxes.cpu().numpy()
 
-                features_normalized = []
-                for box in boxes:
-                    x_min, y_min, x_max, y_max = box
-                    extracted_feature = feature_map[:,
-                                                    y_min:y_max, x_min:x_max]
-                    feature_mean = torch.mean(extracted_feature, dim=(1, 2))
+                if yolosort:
+                    features_normalized = []
+                    for box in boxes:
+                        x_min, y_min, x_max, y_max = box
+                        extracted_feature = feature_map[:,
+                                                        y_min:y_max, x_min:x_max]
+                        feature_mean = torch.mean(
+                            extracted_feature, dim=(1, 2))
 
-                    # L2 Normalize the feature
-                    normalized_feature = feature_mean / \
-                        feature_mean.norm(p=2, dim=0, keepdim=True)
-                    features_normalized.append(normalized_feature)
+                        # L2 Normalize the feature
+                        normalized_feature = feature_mean / \
+                            feature_mean.norm(p=2, dim=0, keepdim=True)
+                        features_normalized.append(normalized_feature)
 
-                if len(features_normalized) == 0:
-                    # or any default tensor value you want to use
-                    features = torch.tensor([])
+                    if len(features_normalized) == 0:
+                        # or any default tensor value you want to use
+                        features = torch.tensor([])
+                    else:
+                        features = torch.stack(features_normalized, dim=0)
                 else:
-                    features = torch.stack(features_normalized, dim=0)
+                    features = None
 
-                # Assuming the above code replaces ops.get_feature_map()
-                # Now, the variable `features` has the extracted features for the given bounding boxes.
+                # end of feature map extraction code
 
                 path = self.batch[0]
                 img_path = path[i] if isinstance(path, list) else path

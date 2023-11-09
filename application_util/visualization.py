@@ -1,4 +1,5 @@
 # vim: expandtab:ts=4:sw=4
+import cv2
 import numpy as np
 import colorsys
 from .image_viewer import ImageViewer
@@ -86,7 +87,7 @@ class Visualization(object):
     This class shows tracking output in an OpenCV image viewer.
     """
 
-    def __init__(self, seq_info, update_ms):
+    def __init__(self, seq_info, update_ms, tracker_name):
         image_shape = seq_info["image_size"][::-1]
         aspect_ratio = float(image_shape[1]) / image_shape[0]
         image_shape = 1024, int(aspect_ratio * 1024)
@@ -96,11 +97,32 @@ class Visualization(object):
         self.frame_idx = seq_info["min_frame_idx"]
         self.last_idx = seq_info["max_frame_idx"]
 
+        # Initialize the video writer
+        import os
+
+        # Define the folder path
+        folder_path = f'vis_results/{tracker_name}'
+
+        # Check if folder exists, if not create one
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        self.img_size_for_video_writer = (2*640, 2*480)
+        self.video_writer = cv2.VideoWriter(
+            f'vis_results/{tracker_name}/{seq_info["sequence_name"]}.avi',
+            cv2.VideoWriter_fourcc(*'DIVX'),
+            20.0,
+            self.img_size_for_video_writer
+        )
+        if not self.video_writer.isOpened():
+            print("Error: Video writer not initialized!")
+
     def run(self, frame_callback):
         self.viewer.run(lambda: self._update_fun(frame_callback))
 
     def _update_fun(self, frame_callback):
         if self.frame_idx > self.last_idx:
+            # Release the video writer before terminating
+            self.video_writer.release()
             return False  # Terminate
         frame_callback(self, self.frame_idx)
         self.frame_idx += 1
@@ -131,4 +153,22 @@ class Visualization(object):
                 *track.to_tlwh().astype(np.int), label=str(track.track_id))
             # self.viewer.gaussian(track.mean[:2], track.covariance[:2, :2],
             #                      label="%d" % track.track_id)
-#
+
+    def put_metadata(self, tracker_name):
+        # Obtain the image from viewer
+        image = self.viewer.image
+        font_scale = 2.5
+        thickness = 5
+        # Add tracker name to the visualization
+        cv2.putText(image, "Tracker: " + tracker_name, (10, 60),
+                    cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
+
+        # Add frame id to the visualization
+        cv2.putText(image, "Frame ID: " + str(self.frame_idx),
+                    (10, 160), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
+
+    def save_visualization(self):
+        # Resize and write the image to the video writer
+        image = self.viewer.image.copy()
+        resized_image = cv2.resize(image, self.img_size_for_video_writer)
+        self.video_writer.write(resized_image)

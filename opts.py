@@ -56,6 +56,25 @@ class opts:
             help='val or test',
         )
         self.parser.add_argument(
+            '--input_resolution',
+            type=int,
+            required=True,
+            help='Resolution for input images (e.g., 1080 for 1920x1080)',
+        )
+        self.parser.add_argument(
+            '--min_confidence',
+            type=float,
+            required=True,
+            help='Minimum confidence threshold for detections',
+        )
+
+        self.parser.add_argument(
+            '--precomputed_features',
+            action='store_true',
+            help='Uses pre-computed detections and apperance features',
+            default=False
+        )
+        self.parser.add_argument(
             '--iou_only',
             action='store_true',
             help='Only use IOU matching',
@@ -64,7 +83,7 @@ class opts:
         self.parser.add_argument(
             '--yolosort',
             action='store_true',
-            help='Use integrated lite apperance features from yolo detector itself'
+            help='Use integrated yolo apperance features from detector itself'
         )
         self.parser.add_argument(
             '--BoT',
@@ -116,6 +135,7 @@ class opts:
         )
         self.parser.add_argument(
             '--dir_save',
+            required=True,
             default='results/StrongSORT_Git/tmp'
         )
         self.parser.add_argument(
@@ -132,7 +152,8 @@ class opts:
             opt = self.parser.parse_args()
         else:
             opt = self.parser.parse_args(args)
-        opt.min_confidence = 0.25
+        # opt.min_confidence = 0.25
+        # opt.min_confidence = 0.6  # original
         opt.nms_max_overlap = 1.0
         opt.min_detection_height = 0
         if opt.BoT:
