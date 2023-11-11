@@ -3,3 +3,5 @@
 **/.txt filter=lfs diff=lfs merge=lfs -text
 **.txt filter=lfs diff=lfs merge=lfs -text
 **.png filter=lfs diff=lfs merge=lfs -text
+results/StrongSORT_Git/**/*.npy filter=lfs diff=lfs merge=lfs -text
+results/StrongSORT_Git/**/*.zip filter=lfs diff=lfs merge=lfs -text
