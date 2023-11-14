@@ -234,7 +234,7 @@ def create_detections_original(detection_mat, frame_idx, min_height=0):
 
 
 def load_reid_model():
-    cfg_path = '/home/juma/code/StrongSORT/fast-reid/configs/DukeMTMC/bagtricks_S50.yml'
+    cfg_path = 'checkpoints/FastReID/bagtricks_S50.yml'
     model_weights = 'checkpoints/FastReID/DukeMTMC_BoT-S50.pth'
 
     cfg = get_cfg()
@@ -250,7 +250,7 @@ def load_reid_model():
 def load_deep_sort_model():
     from deep_apperance import DeepSORTApperanceExtractor
     model = DeepSORTApperanceExtractor(
-        "/home/juma/code/StrongSORT/checkpoints/FastReID/deepsort/original_ckpt.t7")
+        "checkpoints/FastReID/deepsort/original_ckpt.t7")
 
     return model
 
