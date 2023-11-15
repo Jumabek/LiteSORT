@@ -6,7 +6,7 @@ EXPERIMENT_NAME="scenarios"
 DATASET="MOT20"
 
 # Base Command
-BASE_CMD="python strong_sort.py ${DATASET} train"
+BASE_CMD="python strong_sort_fps.py ${DATASET} train"
 
 # Function to run tracker
 run_tracker() {
@@ -48,6 +48,6 @@ for INPUT_RESOLUTION in 1280; do
         run_tracker "SORT"
         run_tracker "LiteSORT"
         run_tracker "DeepSORT"
-        # run_tracker "StrongSORT"
+        run_tracker "StrongSORT"
     done
 done
