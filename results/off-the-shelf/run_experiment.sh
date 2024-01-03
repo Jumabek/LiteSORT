@@ -7,7 +7,7 @@ MIN_CONFIDENCE=".25"
 DATASET="MOT17"
 
 # Base Command
-BASE_CMD="python strong_sort.py ${DATASET} val"
+BASE_CMD="python strong_sort.py ${DATASET} train"
 
 # Function to run tracker
 run_tracker() {
@@ -17,7 +17,7 @@ run_tracker() {
     echo "Running tracker: ${TRACKER_NAME}"  # Debug message
 
 
-    DIR_SAVE="results/${EXPERIMENT_NAME}/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}"
+    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}"
     if [ ! -d "${DIR_SAVE}" ]; then
         mkdir -p ${DIR_SAVE}
     fi
@@ -26,10 +26,10 @@ run_tracker() {
         "SORT")
             ${BASE_CMD} --iou_only --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
-        "liteSORT")
+        "LiteSORT")
             ${BASE_CMD} --yolosort --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
-        "deepSORT")
+        "DeepSORT")
             ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
         "StrongSORT")
@@ -44,7 +44,7 @@ run_tracker() {
 }
 
 # Run experiments for all trackers
-run_tracker "SORT"
-run_tracker "liteSORT"
-run_tracker "deepSORT"
+# run_tracker "SORT"
+run_tracker "LiteSORT"
+# run_tracker "DeepSORT"
 run_tracker "StrongSORT"

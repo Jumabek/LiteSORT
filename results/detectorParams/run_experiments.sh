@@ -11,7 +11,7 @@ BASE_CMD="python strong_sort.py ${DATASET} val"
 # Function to run tracker
 run_tracker() {
 
-    TRACKER_NAME=$1
+`   `    TRACKER_NAME=$1
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME} with Input Resolution: ${INPUT_RESOLUTION} and Confidence Threshold: ${MIN_CONFIDENCE}"  # Debug message
 
@@ -27,7 +27,7 @@ run_tracker() {
         "LiteSORT")
             ${BASE_CMD} --yolosort --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
-        "deepSORT")
+        "DeepSORT")
             ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
         "StrongSORT")
