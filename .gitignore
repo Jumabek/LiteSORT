@@ -1,3 +1,12 @@
 __pycache__/
 *.pyc
 
+TrackEval/
+checkpoints/
+datasets/
+myenv/
+.vscode/
+*.pt
+*.avi
+
+fast-reid/
