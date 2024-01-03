@@ -14,3 +14,14 @@ track filter=lfs diff=lfs merge=lfs -text
 checkpoints/FastReID/*.pth filter=lfs diff=lfs merge=lfs -text
 checkpoints/FastReID/*/*.t7 filter=lfs diff=lfs merge=lfs -text
 checkpoints/FastReID/*.yml filter=lfs diff=lfs merge=lfs -text
+**.json filter=lfs diff=lfs merge=lfs -text
+TrackEval/minimum_requirements.txt filter=lfs diff=lfs merge=lfs -text
+TrackEval/requirements.txt filter=lfs diff=lfs merge=lfs -text
+results/pedestrian_summary.txt filter=lfs diff=lfs merge=lfs -text
+TrackEval/error_log.txt filter=lfs diff=lfs merge=lfs -text
+requirements.txt filter=lfs diff=lfs merge=lfs -text
+*.json filter=lfs diff=lfs merge=lfs -text
+**/*.json filter=lfs diff=lfs merge=lfs -text
+assets/comparison.png filter=lfs diff=lfs merge=lfs -text
+assets/MOTA-IDF1-HOTA.png filter=lfs diff=lfs merge=lfs -text
+**/*.ipynb filter=lfs diff=lfs merge=lfs -text

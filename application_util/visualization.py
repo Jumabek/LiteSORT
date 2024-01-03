@@ -101,14 +101,14 @@ class Visualization(object):
         import os
 
         # Define the folder path
-        folder_path = f'vis_results/{tracker_name}'
+        folder_path = f'{tracker_name}'
 
         # Check if folder exists, if not create one
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         self.img_size_for_video_writer = (2*640, 2*480)
         self.video_writer = cv2.VideoWriter(
-            f'vis_results/{tracker_name}/{seq_info["sequence_name"]}.avi',
+            f'{tracker_name}/{seq_info["sequence_name"]}.avi',
             cv2.VideoWriter_fourcc(*'DIVX'),
             20.0,
             self.img_size_for_video_writer

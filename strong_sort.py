@@ -26,6 +26,5 @@ if __name__ == '__main__':
             min_detection_height=opt.min_detection_height,
             max_cosine_distance=opt.max_cosine_distance,
             nn_budget=opt.nn_budget,
-            display=False
+            display=True
         )
-        break  # computing first sequence for FPS purposes

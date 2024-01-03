@@ -11,7 +11,7 @@ from os.path import join
 
 data = {
     'MOT17': {
-        'val': [
+        'train': [
             'MOT17-02-FRCNN',
             'MOT17-04-FRCNN',
             'MOT17-05-FRCNN',
@@ -36,7 +36,20 @@ data = {
             'MOT20-06',
             'MOT20-07',
             'MOT20-08'
+        ],
+        'train': [
+            'MOT20-01',
+            'MOT20-02',
+            'MOT20-03',
+            'MOT20-05'
         ]
+    },
+    'KITTI': {
+        'train': [
+            "0000", "0002", "0004", "0006", "0008", "0010", "0012", "0014", "0016", "0018", "0020",
+            "0001", "0003", "0005", "0007", "0009", "0011", "0013", "0015", "0017", "0019"
+        ]
+
     }
 }
 
@@ -171,14 +184,13 @@ class opts:
         else:
             opt.nn_budget = 100
         if opt.ECC:
-            path_ECC = 'results/StrongSORT_Git/{}_ECC_{}.json'.format(
-                opt.dataset, opt.mode)
+            path_ECC = f'results/StrongSORT_Git/{opt.dataset}_ECC_{ opt.mode}.json'
             opt.ecc = json.load(open(path_ECC))
         opt.sequences = data[opt.dataset][opt.mode]
         opt.dir_dataset = join(
             opt.root_dataset,
             opt.dataset,
-            'train' if opt.mode == 'val' else 'test'
+            opt.mode
         )
         return opt
 
