@@ -61,7 +61,7 @@ class opts:
             'dataset',
             type=str,
             default='MOT17',
-            help='MOT17 or MOT20',
+            help='MOT17 or MOT20 or KITTI',
         )
         self.parser.add_argument(
             'mode',
@@ -94,7 +94,7 @@ class opts:
             default=False
         )
         self.parser.add_argument(
-            '--yolosort',
+            '--LiteSORT',
             action='store_true',
             help='Use integrated yolo apperance features from detector itself'
         )
@@ -129,22 +129,8 @@ class opts:
             help='Replace the matching cascade with vanilla matching'
         )
         self.parser.add_argument(
-            '--AFLink',
-            action='store_true',
-            help='Appearance-Free Link'
-        )
-        self.parser.add_argument(
-            '--GSI',
-            action='store_true',
-            help='Gaussian-smoothed Interpolation'
-        )
-        self.parser.add_argument(
             '--root_dataset',
             default='datasets/'
-        )
-        self.parser.add_argument(
-            '--path_AFLink',
-            default='/data/dyh/results/StrongSORT_Git/AFLink_epoch20.pth'
         )
         self.parser.add_argument(
             '--dir_save',
@@ -165,8 +151,7 @@ class opts:
             opt = self.parser.parse_args()
         else:
             opt = self.parser.parse_args(args)
-        # opt.min_confidence = 0.25
-        # opt.min_confidence = 0.6  # original
+
         opt.nms_max_overlap = 1.0
         opt.min_detection_height = 0
         if opt.BoT:

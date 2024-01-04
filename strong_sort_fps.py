@@ -28,3 +28,4 @@ if __name__ == '__main__':
             nn_budget=opt.nn_budget,
             display=False
         )
+        break  # computing first sequence for FPS purposes

@@ -125,7 +125,7 @@ def get_apperance_features(yolo_results, image, reid_model):
         return [None] * len(yolo_results[0].boxes.data)
         # return np.zeros*len(yolo_results[0].boxes.data)
 
-    if opt.yolosort:
+    if opt.LiteSORT:
         return yolo_results[0].appearance_features.cpu().numpy()
 
     # Convert the image to RGB and then to PIL format only if it's needed
@@ -168,7 +168,9 @@ def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
     detection_list = []
     # Get the specific image frame path
     # assuming frame names are like 000001.jpg, 000002.jpg, ...
-    img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}.jpg')
+
+    ext = '.jpg' if opt.dataset in ['MOT17', 'MOT20'] else '.png'
+    img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}{ext}')
     # print(f"Processing image {img_path}")
 
     if not os.path.exists(img_path):
@@ -178,7 +180,7 @@ def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
     image = cv2.imread(img_path)
     # Apply detection for 'person' class
     yolo_results = model.predict(
-        image, classes=[0], verbose=False, imgsz=opt.input_resolution, yolosort=opt.yolosort, conf=opt.min_confidence)
+        image, classes=[0], verbose=False, imgsz=opt.input_resolution, yolosort=opt.LiteSORT, conf=opt.min_confidence)
     appearance_features = get_apperance_features(
         yolo_results, image, reid_model)
 
@@ -201,6 +203,8 @@ def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
 
 
 def create_detections_original(detection_mat, frame_idx, min_height=0):
+    "Strongsort original, uses precomputed features and detections"
+
     """Create detections for given frame index from the raw detection matrix.
 
     Parameters
@@ -298,7 +302,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
     results = []
     model = YOLO("yolov8m.pt")
 
-    if opt.iou_only or opt.yolosort or opt.precomputed_features:
+    if opt.iou_only or opt.LiteSORT or opt.precomputed_features:
         reid_model = None
     else:
         reid_model = load_reid_model() if opt.BoT else load_deep_sort_model()
@@ -361,11 +365,33 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
 
-    # Store results.
-    f = open(output_file, 'w')
-    for row in results:
-        print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (
-            row[0], row[1], row[2], row[3], row[4], row[5]), file=f)
+    if opt.dataset in ['MOT17', 'MOT20']:
+        # Store results.
+        f = open(output_file, 'w')
+        for row in results:
+            print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (
+                row[0], row[1], row[2], row[3], row[4], row[5]), file=f)
+    elif opt.dataset == 'KITTI':
+        with open(output_file, 'w') as f:
+            for row in results:
+                # Set default values for fields that might not be available in your tracker
+                object_type = "Pedestrian"  # or your default
+                truncated = -1  # default, as this info might not be available
+                occluded = -1  # default, as this info might not be available
+                alpha = -10  # default, as this info might not be available
+                # default, as this info might not be available
+                dimensions = (-1, -1, -1)
+                # default, as this info might not be available
+                location = (-1000, -1000, -1000)
+                rotation_y = -10  # default, as this info might not be available
+                score = row[5]  # if you have confidence score
+
+                # Write formatted data with maximum 2 decimal places for floating-point values
+                f.write(f"{row[0]} {row[1]} {object_type} {truncated} {occluded} {alpha:.2f} "
+                        f"{row[2]:.2f} {row[3]:.2f} {(row[2]+row[4]):.2f} {(row[3]+row[5]):.2f} "
+                        f"{' '.join(map(lambda l: f'{l:.2f}', location))} "
+                        f"{' '.join(map(lambda d: f'{d:.2f}', dimensions))} \n"
+                        )
 
     tock = time.time()
     time_spent_for_the_sequence = tock - tick

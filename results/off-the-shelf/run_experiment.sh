@@ -44,7 +44,7 @@ run_tracker() {
 }
 
 # Run experiments for all trackers
-# run_tracker "SORT"
+run_tracker "SORT"
 run_tracker "LiteSORT"
-# run_tracker "DeepSORT"
+run_tracker "DeepSORT"
 run_tracker "StrongSORT"

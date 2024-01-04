@@ -26,22 +26,10 @@ for tracker in "${TRACKERS[@]}"; do
                 echo "Running evaluation for the specified tracker folder: ${TRACKER_PATH}"
 
                 # Construct the command
-                EVAL_CMD="${BASE_CMD} \
-                    --BENCHMARK ${BENCHMARK} \
-                    --SPLIT_TO_EVAL train \
-                    --TRACKERS_TO_EVAL "/home/juma/code/StrongSORT/results" \
-                    --TRACKER_SUB_FOLDER  "scenarios/${BENCHMARK}/${tracker}__input_${res}__conf_${conf}" \
-                    --METRICS HOTA CLEAR Identity VACE \
-                    --USE_PARALLEL False \
-                    --NUM_PARALLEL_CORES 32 \
-                    --GT_LOC_FORMAT '{gt_folder}/{seq}/gt/gt.txt' \
-                    --OUTPUT_SUMMARY True \
-                    --OUTPUT_EMPTY_CLASSES False \
-                    --OUTPUT_DETAILED False \
-                    --PLOT_CURVES False"
+                EVAL_CMD="${BASE_CMD}" 
 
                 # Print the evaluation command
-                #echo "Evaluation command: ${EVAL_CMD}"
+                echo "Evaluation command: ${EVAL_CMD}"
 
                 # Run the evaluation and store the output in a file inside the tracker folder
                 eval $EVAL_CMD > "${TRACKER_PATH}/evaluation_output.txt"
