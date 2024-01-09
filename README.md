@@ -7,20 +7,30 @@ StrongSORT is intended only for research purpose.
 Notable, LiteSORT can be adjusted with minimal effort for your practical problem just like boxmot.
 Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evaluation of trackers. 
 
-# Reproduce
+# Reproduce experiments
 
 - In the experiments  (1) off-the-shelf case, (2) Detector Sensitivity to COnfidence threshold and Input Image Resolution, and (3) different tracking scenarios are considered.
 
-3. Scenarios:
+## Scenarios:
 In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 
-a) MOT17 - standard benchmakr
+### MOT17 - standard benchmakr
 
-b) MOT20 - contains more denser crowd, which challenges pure motion based trackers
+### MOT20 - contains more denser crowd, which challenges pure motion based trackers
 
-c) KITTI - unlike, MOT17 and MOT20 datasets, camera is moving with vehicle it is mounted. This scenario captures the challenge of tracking in self-driving cars.
+### KITTI - unlike, MOT17 and MOT20 datasets, camera is moving with vehicle it is mounted. This scenario captures the challenge of tracking in self-driving cars.
 
+1. Run inference prediction on sequences
+`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
 
+2. Evaluate with Track eval benchmark:
+
+`myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER  /home/juma/code/StrongSORT/results/scenarios/KITTI`
+
+![image](https://github.com/Jumabek/LiteSORT/assets/4343873/07f46053-aa21-46c5-a525-b02d28858aa5)
+
+3. Or evaluate all trackers using
+`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
 
 
 # StrongSORT
