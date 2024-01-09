@@ -12,9 +12,12 @@ Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evalu
 - In the experiments  (1) off-the-shelf case, (2) Detector Sensitivity to COnfidence threshold and Input Image Resolution, and (3) different tracking scenarios are considered.
 
 3. Scenarios:
-In order for reliable evaluation, we compare tracker in 3 difrerent settings
+In order for reliable evaluation, we compare tracker in 3 difrerent settings:
+
 a) MOT17 - standard benchmakr
+
 b) MOT20 - contains more denser crowd, which challenges pure motion based trackers
+
 c) KITTI - unlike, MOT17 and MOT20 datasets, camera is moving with vehicle it is mounted. This scenario captures the challenge of tracking in self-driving cars.
 
 
