@@ -31,7 +31,7 @@ In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 
 3. Or evaluate all trackers using
    
-`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
+`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/eval-kitti.sh`
 
 
 # StrongSORT
