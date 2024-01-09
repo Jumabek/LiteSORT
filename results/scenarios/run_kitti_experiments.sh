@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Hardcoded Variables
 EXPERIMENT_NAME="scenarios"
 DATASET="KITTI"
@@ -22,22 +21,25 @@ run_tracker() {
 
     case ${TRACKER_NAME} in
         "SORT")
-            ${BASE_CMD} --iou_only --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            CMD="${BASE_CMD} --iou_only --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
             ;;
         "LiteSORT")
-            ${BASE_CMD} --yolosort --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            CMD="${BASE_CMD} --LiteSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
             ;;
         "DeepSORT")
-            ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            CMD="${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
             ;;
         "StrongSORT")
-            ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --NSA --EMA --MC --woC
+            CMD="${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --NSA --EMA --MC --woC"
             ;;
         *)
             echo "Invalid tracker name"
             exit 1
             ;;
     esac
+
+    echo "Executing command: ${CMD}"
+    eval ${CMD}
     echo "Experiment completed for ${TRACKER_NAME}!"
 }
 
@@ -45,9 +47,9 @@ run_tracker() {
 for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
         # Run experiments for all trackers
-        run_tracker "SORT"
-        # run_tracker "LiteSORT"
-        # run_tracker "DeepSORT"
+        #run_tracker "SORT"
+        run_tracker "LiteSORT"
+        #run_tracker "DeepSORT"
         #run_tracker "StrongSORT"
     done
 done
