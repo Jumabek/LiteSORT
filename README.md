@@ -25,11 +25,12 @@ In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 
 2. Evaluate with Track eval benchmark:
 
-`myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER  /home/juma/code/StrongSORT/results/scenarios/KITTI`
+`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER  /home/juma/code/StrongSORT/results/scenarios/KITTI`
 
 ![image](https://github.com/Jumabek/LiteSORT/assets/4343873/07f46053-aa21-46c5-a525-b02d28858aa5)
 
 3. Or evaluate all trackers using
+   
 `(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
 
 
