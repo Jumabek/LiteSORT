@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import colorsys
 from .image_viewer import ImageViewer
+import ntpath
 
 
 def create_unique_color_float(tag, hue_step=0.41):
@@ -87,7 +88,7 @@ class Visualization(object):
     This class shows tracking output in an OpenCV image viewer.
     """
 
-    def __init__(self, seq_info, update_ms, tracker_name):
+    def __init__(self, seq_info, update_ms, dir_save):
         image_shape = seq_info["image_size"][::-1]
         aspect_ratio = float(image_shape[1]) / image_shape[0]
         image_shape = 1024, int(aspect_ratio * 1024)
@@ -100,15 +101,19 @@ class Visualization(object):
         # Initialize the video writer
         import os
 
+        tracker_name = ntpath.basename(ntpath.dirname(dir_save)).split('__')[0]
+        self.tracker_name = tracker_name
+        print("tracker_name", tracker_name)
+
         # Define the folder path
-        folder_path = f'{tracker_name}'
+        folder_path = dir_save
 
         # Check if folder exists, if not create one
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         self.img_size_for_video_writer = (2*640, 2*480)
         self.video_writer = cv2.VideoWriter(
-            f'{tracker_name}/{seq_info["sequence_name"]}.avi',
+            f'{folder_path}/{seq_info["sequence_name"]}.avi',
             cv2.VideoWriter_fourcc(*'DIVX'),
             20.0,
             self.img_size_for_video_writer
@@ -154,13 +159,13 @@ class Visualization(object):
             # self.viewer.gaussian(track.mean[:2], track.covariance[:2, :2],
             #                      label="%d" % track.track_id)
 
-    def put_metadata(self, tracker_name):
+    def put_metadata(self):
         # Obtain the image from viewer
         image = self.viewer.image
         font_scale = 2.5
         thickness = 5
         # Add tracker name to the visualization
-        cv2.putText(image, "Tracker: " + tracker_name, (10, 60),
+        cv2.putText(image, "Tracker: " + self.tracker_name, (10, 60),
                     cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
 
         # Add frame id to the visualization

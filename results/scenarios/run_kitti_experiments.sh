@@ -5,7 +5,7 @@ EXPERIMENT_NAME="scenarios"
 DATASET="KITTI"
 
 # Base Command
-BASE_CMD="python strong_sort.py ${DATASET} train"
+BASE_CMD="python strong_sort_fps.py ${DATASET} train"
 
 # Function to run tracker
 run_tracker() {
@@ -47,9 +47,9 @@ run_tracker() {
 for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
         # Run experiments for all trackers
-        #run_tracker "SORT"
+        run_tracker "SORT"
         run_tracker "LiteSORT"
-        #run_tracker "DeepSORT"
-        #run_tracker "StrongSORT"
+        run_tracker "DeepSORT"
+        run_tracker "StrongSORT"
     done
 done

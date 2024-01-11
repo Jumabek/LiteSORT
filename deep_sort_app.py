@@ -18,6 +18,7 @@ from deep_sort.tracker import Tracker
 from opts import opt
 
 
+import ntpath
 import os
 import cv2
 from PIL import Image
@@ -346,8 +347,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
             vis.set_image(image.copy())
             vis.draw_detections(detections)
             vis.draw_trackers(tracker.tracks)
-            vis.put_metadata(
-                tracker_name='strongSORT')
+            vis.put_metadata()
             vis.save_visualization()
 
         # Store results.
@@ -360,8 +360,9 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
 
     # Run tracker.
     if display:
+
         visualizer = visualization.Visualization(
-            seq_info, update_ms=5, tracker_name=opt.dir_save)
+            seq_info, update_ms=5, dir_save=opt.dir_save)
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
