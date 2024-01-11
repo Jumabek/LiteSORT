@@ -11,6 +11,8 @@ Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evalu
 
 `python lite_sort_demo.py MOT17 train  --input_resolution 1280 --min_confidence .25 --dir_save temp`
 
+![image](https://github.com/Jumabek/LiteSORT/assets/4343873/46f0d58b-72bb-489f-a9b3-496da30f820b)
+
 # Reproduce experiments
 
 - In the experiments (1) off-the-shelf case, (2) Detector Sensitivity to COnfidence threshold and Input Image Resolution, and (3) different tracking scenarios are considered.
