@@ -25,3 +25,4 @@ requirements.txt filter=lfs diff=lfs merge=lfs -text
 assets/comparison.png filter=lfs diff=lfs merge=lfs -text
 assets/MOTA-IDF1-HOTA.png filter=lfs diff=lfs merge=lfs -text
 **/*.ipynb filter=lfs diff=lfs merge=lfs -text
+**/*.mp4 filter=lfs diff=lfs merge=lfs -text

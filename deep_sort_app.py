@@ -310,6 +310,7 @@ def run(sequence_dir, detection_file, output_file, min_confidence,
 
     tick = time.time()
 
+    # inner function
     def frame_callback(vis, frame_idx):
         # print("Processing frame %05d" % frame_idx)
 

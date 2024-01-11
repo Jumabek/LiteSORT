@@ -1,17 +1,22 @@
 # LiteSORT
+
 this repo is built on top of StrongSORT. Novel Tracker, LiteSORT is included.
 
-
-StrongSORT is intended only for research purpose. 
+StrongSORT is intended only for research purpose.
 
 Notable, LiteSORT can be adjusted with minimal effort for your practical problem just like boxmot.
-Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evaluation of trackers. 
+Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evaluation of trackers.
+
+# Demo
+
+`python lite_sort_demo.py MOT17 train  --input_resolution 1280 --min_confidence .25 --dir_save temp`
 
 # Reproduce experiments
 
-- In the experiments  (1) off-the-shelf case, (2) Detector Sensitivity to COnfidence threshold and Input Image Resolution, and (3) different tracking scenarios are considered.
+- In the experiments (1) off-the-shelf case, (2) Detector Sensitivity to COnfidence threshold and Input Image Resolution, and (3) different tracking scenarios are considered.
 
 ## Scenarios:
+
 In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 
 ### MOT17 - standard benchmakr
@@ -21,7 +26,7 @@ In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 ### KITTI - unlike, MOT17 and MOT20 datasets, camera is moving with vehicle it is mounted. This scenario captures the challenge of tracking in self-driving cars.
 
 1. Run inference prediction on sequences
-`(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
+   `(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/run_kitti_experiments.sh`
 
 2. Evaluate with Track eval benchmark:
 
@@ -30,11 +35,11 @@ In order for reliable evaluation, we compare tracker in 3 difrerent settings:
 ![image](https://github.com/Jumabek/LiteSORT/assets/4343873/07f46053-aa21-46c5-a525-b02d28858aa5)
 
 3. Or evaluate all trackers using
-   
+
 `(myenv) juma@juma-System-Product-Name:~/code/StrongSORT$ bash results/scenarios/eval-kitti.sh`
 
-
 # StrongSORT
+
 **StrongSORT: Make DeepSORT Great Again**
 
 [![arXiv](https://img.shields.io/badge/arXiv-2202.13514-<COLOR>.svg)](https://arxiv.org/abs/2202.13514) [![License: GPL](https://img.shields.io/badge/License-GPL-yellow.svg)](https://opensource.org/licenses/GPL-3.0) ![test](https://img.shields.io/static/v1?label=By&message=Pytorch&color=red)
@@ -101,7 +106,7 @@ Existing Multi-Object Tracking (MOT) methods can be roughly classified as tracki
    ├── MOT20_test_YOLOX+simpleCNN  # detections + features
    ```
 
-3. Set the paths of your dataset and other files in "opts.py", i.e., root_dataset, path_AFLink, dir_save, dir_dets, path_ECC. 
+3. Set the paths of your dataset and other files in "opts.py", i.e., root_dataset, path_AFLink, dir_save, dir_dets, path_ECC.
 
 Note: If you want to generate ECC results, detections and features by yourself, please refer to the [Auxiliary tutorial](https://github.com/dyhBUPT/StrongSORT/blob/master/others/AuxiliaryTutorial.md).
 
@@ -161,12 +166,14 @@ We use the official code [TrackEval](https://github.com/JonathonLuiten/TrackEval
 To make it easier for you to get started, we provide the MOT17-val annotations in the [baidu disk](https://pan.baidu.com/s/1EtBbo-12xhjsqW5x-dYX8A?pwd=sort) with code "sort", in the folder "MOT17-train".
 
 Please prepare the code and environment of TrackEval first and link the downloaded folder "MOT17-train" with folder "data/gt/mot_challenge" of TrackEval as:
+
 ```shell
 ln -s xxx/MOT17-train xxx/TrackEval/data/gt/mot_challenge
 ```
 
 We also provide some tracking results in the baidu disk, in the folder "MOT17-val_results".
 You can download them, cd to the TrackEval dir and try to evaluate the StrongSORT++ as:
+
 ```shell
 python scripts/run_mot_challenge.py \
 --BENCHMARK MOT17 \
@@ -182,6 +189,7 @@ python scripts/run_mot_challenge.py \
 --OUTPUT_DETAILED False \
 --PLOT_CURVES False
 ```
+
 Note: you may also need to prepare the `SEQMAPS` to specify the sequences to be evaluated.
 
 ## Note
@@ -206,7 +214,9 @@ Note: you may also need to prepare the `SEQMAPS` to specify the sequences to be 
   publisher={IEEE}
 }
 ```
+
 You can also consider reading and citing our related work, [GIAOTracker](https://github.com/dyhBUPT/GIAOTracker), which won the 2nd place in the VisDrone2021 MOT Challenge of ICCV Workshop:
+
 ```
 @InProceedings{Du_2021_ICCV,
     author    = {Du, Yunhao and Wan, Junfeng and Zhao, Yanyun and Zhang, Binyu and Tong, Zhihang and Dong, Junhao},
@@ -222,10 +232,10 @@ You can also consider reading and citing our related work, [GIAOTracker](https:/
 
 A large part of the codes, ideas and results are borrowed from [DeepSORT](https://github.com/nwojke/deep_sort), [JDE](https://github.com/Zhongdao/Towards-Realtime-MOT), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX) and [ByteTrack](https://github.com/ifzhang/ByteTrack). Thanks for their excellent work!
 
-
 ### &#8627; Stargazers
+
 [![Stargazers repo roster for @dyhBUPT/StrongSORT](https://reporoster.com/stars/dyhBUPT/StrongSORT)](https://github.com/dyhBUPT/StrongSORT/stargazers)
 
 ### &#8627; Forkers
-[![Forkers repo roster for @dyhBUPT/StrongSORT](https://reporoster.com/forks/dyhBUPT/StrongSORT)](https://github.com/dyhBUPT/StrongSORT/network/members)
 
+[![Forkers repo roster for @dyhBUPT/StrongSORT](https://reporoster.com/forks/dyhBUPT/StrongSORT)](https://github.com/dyhBUPT/StrongSORT/network/members)
