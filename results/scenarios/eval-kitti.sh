@@ -3,7 +3,7 @@
 # List of resolutions and confidence thresholds
 RESOLUTIONS=(1280)
 CONFIDENCES=(.25)
-BENCHMARK="KITTI" 
+BENCHMARK="KITTI-person-car" 
 
 # Base Command
 BASE_CMD="python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER"
@@ -27,7 +27,7 @@ for res in "${RESOLUTIONS[@]}"; do
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD > "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
+        eval $EVAL_CMD > "/home/juma/code/StrongSORT/results/scenarios/${BENCHMARK}.txt"
     done
 done
 
