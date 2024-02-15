@@ -94,7 +94,8 @@ def _nn_cosine_distance(x, y):
         smallest cosine distance to a sample in `x`.
 
     """
-    distances = _cosine_distance(x, y)
+    distances = _cosine_distance(
+        x, y)  # x is (n,emb_dim) embedding for a single track), y is embeddings for all current detections (1 embedding per detection)
     return distances.min(axis=0)
 
 
@@ -124,7 +125,6 @@ class NearestNeighborDistanceMetric(object):
 
     def __init__(self, metric, matching_threshold, budget=None):
 
-
         if metric == "euclidean":
             self._metric = _nn_euclidean_distance
         elif metric == "cosine":
@@ -153,6 +153,8 @@ class NearestNeighborDistanceMetric(object):
             self.samples.setdefault(target, []).append(feature)
             if self.budget is not None:
                 self.samples[target] = self.samples[target][-self.budget:]
+                # self.samples[target] = self.samples[target][:2]
+        # inactive targets are removed from the dictionary
         self.samples = {k: self.samples[k] for k in active_targets}
 
     def distance(self, features, targets):

@@ -5,7 +5,7 @@
 @Time: 2022/2/28 20:14
 @Discription: Run StrongSORT
 """
-from deep_sort_app import run
+from litesort_app import run
 from opts import opt
 import time
 import warnings
@@ -19,12 +19,10 @@ if __name__ == '__main__':
         tick = time.time()
         run(
             sequence_dir=join(opt.dir_dataset, seq),
-            detection_file=join(opt.dir_dets, seq + '.npy'),
             output_file=path_save,
             min_confidence=opt.min_confidence,
             nms_max_overlap=opt.nms_max_overlap,
             min_detection_height=opt.min_detection_height,
-            max_cosine_distance=opt.max_cosine_distance,
             nn_budget=opt.nn_budget,
-            display=False
+            display=True
         )

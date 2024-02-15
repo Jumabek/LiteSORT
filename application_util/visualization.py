@@ -4,6 +4,7 @@ import numpy as np
 import colorsys
 from .image_viewer import ImageViewer
 import ntpath
+from opts import opt
 
 
 def create_unique_color_float(tag, hue_step=0.41):
@@ -101,19 +102,14 @@ class Visualization(object):
         # Initialize the video writer
         import os
 
-        tracker_name = ntpath.basename(ntpath.dirname(dir_save)).split('__')[0]
-        self.tracker_name = tracker_name
-        print("tracker_name", tracker_name)
-
-        # Define the folder path
-        folder_path = dir_save
+        self.tracker_name = opt.tracker_name
 
         # Check if folder exists, if not create one
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+        if not os.path.exists(dir_save):
+            os.makedirs(dir_save)
         self.img_size_for_video_writer = (2*640, 2*480)
         self.video_writer = cv2.VideoWriter(
-            f'{folder_path}/{seq_info["sequence_name"]}.avi',
+            f'{dir_save}/{seq_info["sequence_name"]}.avi',
             cv2.VideoWriter_fourcc(*'DIVX'),
             20.0,
             self.img_size_for_video_writer
@@ -155,7 +151,7 @@ class Visualization(object):
                 continue
             self.viewer.color = create_unique_color_uchar(track.track_id)
             self.viewer.rectangle(
-                *track.to_tlwh().astype(np.int), label=str(track.track_id))
+                *track.to_tlwh().astype(int), label=str(track.track_id))
             # self.viewer.gaussian(track.mean[:2], track.covariance[:2, :2],
             #                      label="%d" % track.track_id)
 
