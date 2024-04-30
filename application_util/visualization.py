@@ -5,6 +5,7 @@ import colorsys
 from .image_viewer import ImageViewer
 import ntpath
 from opts import opt
+import time
 
 
 def create_unique_color_float(tag, hue_step=0.41):
@@ -98,7 +99,7 @@ class Visualization(object):
         self.viewer.thickness = 2
         self.frame_idx = seq_info["min_frame_idx"]
         self.last_idx = seq_info["max_frame_idx"]
-
+        self.last_frame_update_time = time.time()
         # Initialize the video writer
         import os
 
@@ -107,7 +108,7 @@ class Visualization(object):
         # Check if folder exists, if not create one
         if not os.path.exists(dir_save):
             os.makedirs(dir_save)
-        self.img_size_for_video_writer = (2*640, 2*480)
+        self.img_size_for_video_writer = image_shape  # (2*640, 2*480)
         self.video_writer = cv2.VideoWriter(
             f'{dir_save}/{seq_info["sequence_name"]}.avi',
             cv2.VideoWriter_fourcc(*'DIVX'),
@@ -118,16 +119,34 @@ class Visualization(object):
             print("Error: Video writer not initialized!")
 
     def run(self, frame_callback):
+
         self.viewer.run(lambda: self._update_fun(frame_callback))
 
     def _update_fun(self, frame_callback):
         if self.frame_idx > self.last_idx:
-            # Release the video writer before terminating
             self.video_writer.release()
             return False  # Terminate
+        tick = time.time()
         frame_callback(self, self.frame_idx)
+        tock = time.time()
+        elapsed_time = tock - tick
+        if elapsed_time > 0:
+            self.viewer.fps = round(1 / elapsed_time, 1)
+
         self.frame_idx += 1
         return True
+
+    # def run(self, frame_callback):
+    #     self.viewer.run(lambda: self._update_fun(frame_callback))
+
+    # def _update_fun(self, frame_callback):
+    #     if self.frame_idx > self.last_idx:
+    #         # Release the video writer before terminating
+    #         self.video_writer.release()
+    #         return False  # Terminate
+    #     frame_callback(self, self.frame_idx)
+    #     self.frame_idx += 1
+    #     return True
 
     def set_image(self, image):
         self.viewer.image = image
@@ -166,7 +185,9 @@ class Visualization(object):
 
         # Add frame id to the visualization
         cv2.putText(image, "Frame ID: " + str(self.frame_idx),
-                    (10, 160), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 0, 0), thickness)
+                    (10, 160), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
+        cv2.putText(image, "FPS: " + str(self.viewer.fps),
+                    (10, 260), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 0, 255), thickness)
 
     def save_visualization(self):
         # Resize and write the image to the video writer

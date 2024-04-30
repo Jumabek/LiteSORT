@@ -110,6 +110,7 @@ class ImageViewer(object):
         self._color = (0, 0, 0)
         self.text_color = (255, 255, 255)
         self.thickness = 1
+        self.fps = 0
 
     @property
     def color(self):

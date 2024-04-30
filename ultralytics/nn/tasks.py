@@ -74,7 +74,11 @@ class BaseModel(nn.Module):
             (torch.Tensor): The last output of the model.
         """
         y, dt = [], []  # outputs
-        first_layer_activations = None
+
+        # will be used to store the activations of each layers
+        import copy
+        layers = {}
+
         for i, m in enumerate(self.model):
             if m.f != -1:  # not executed for first layer output
                 x = y[m.f] if isinstance(m.f, int) else [
@@ -83,15 +87,14 @@ class BaseModel(nn.Module):
                 self._profile_one_layer(m, x, dt)
 
             x = m(x)  # run
-            if i == 0:
-                import copy
-                first_layer_activations = copy.deepcopy(x)
+
+            layers['layer' + str(i)] = copy.deepcopy(x)
 
             y.append(x if m.i in self.save else None)  # save output
 
             if visualize:
                 feature_visualization(x, m.type, m.i, save_dir=visualize)
-        return x + (first_layer_activations,)
+        return x + (layers,)
         # here x contains y(final output (1,80+4,N)) and x contains 3 grids for anchorboxes
         # 1. 1,144,80,80
         # 2. 1,144,40,40

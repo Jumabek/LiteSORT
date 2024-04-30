@@ -26,7 +26,7 @@ for res in "${RESOLUTIONS[@]}"; do
                     --TRACKERS_FOLDER ${PARENT_TRACKERS_FOLDER} \
                     --SPLIT_TO_EVAL train \
                     --METRICS HOTA CLEAR Identity VACE \
-                    --USE_PARALLEL False \
+                    --USE_PARALLEL True \
                     --NUM_PARALLEL_CORES 16 \
                     --GT_LOC_FORMAT '{gt_folder}/{seq}/gt/gt.txt' \
                     --OUTPUT_SUMMARY True \
@@ -38,7 +38,7 @@ for res in "${RESOLUTIONS[@]}"; do
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD > "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
+        eval $EVAL_CMD #> "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
     done
 done
 

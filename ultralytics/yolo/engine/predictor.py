@@ -270,7 +270,7 @@ class BasePredictor:
             # Postprocess
             with profilers[2]:
                 self.results = self.postprocess(
-                    preds, im, im0s, self.args.yolosort, **kwargs)
+                    preds, im, im0s, self.args.appearance_feature_layer, **kwargs)
             self.run_callbacks('on_predict_postprocess_end')
 
             # Visualize, save, write results

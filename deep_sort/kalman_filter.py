@@ -18,6 +18,17 @@ chi2inv95 = {
     8: 15.507,
     9: 16.919}
 
+chi2inv99 = {
+    1: 6.6349,
+    2: 9.2103,
+    3: 11.3449,
+    4: 13.2767,
+    5: 15.0863,
+    6: 16.8119,
+    7: 18.4753,
+    8: 20.0902,
+    9: 21.6660}
+
 
 class KalmanFilter(object):
     """
@@ -175,7 +186,8 @@ class KalmanFilter(object):
             Returns the measurement-corrected state distribution.
 
         """
-        projected_mean, projected_cov = self.project(mean, covariance, confidence)
+        projected_mean, projected_cov = self.project(
+            mean, covariance, confidence)
 
         chol_factor, lower = scipy.linalg.cho_factor(
             projected_cov, lower=True, check_finite=False)

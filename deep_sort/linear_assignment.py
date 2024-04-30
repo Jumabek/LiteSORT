@@ -200,6 +200,7 @@ def gate_cost_matrix(
     """
     assert not only_position
     gating_threshold = kalman_filter.chi2inv95[4]
+
     measurements = np.asarray([detections[i].to_xyah()
                               for i in detection_indices])
     for row, track_idx in enumerate(track_indices):

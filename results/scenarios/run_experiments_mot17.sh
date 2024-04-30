@@ -6,7 +6,7 @@ EXPERIMENT_NAME="scenarios"
 DATASET="MOT17"
 
 # Base Command
-BASE_CMD="python strong_sort.py ${DATASET} train "
+BASE_CMD="python strong_sort_fps.py ${DATASET} train "
 
 
 # Function to run tracker
@@ -16,7 +16,7 @@ run_tracker() {
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME} with Input Resolution: ${INPUT_RESOLUTION} and Confidence Threshold: ${MIN_CONFIDENCE}"  # Debug message
 
-    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}-train/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}/data/"
+    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}-train-fps/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}/data/"
     if [ ! -d "${DIR_SAVE}" ]; then
         mkdir -p ${DIR_SAVE}
     fi
@@ -26,7 +26,7 @@ run_tracker() {
             ${BASE_CMD} SORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
         "LiteSORT")
-            CMD="${BASE_CMD} LiteSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
+            CMD="${BASE_CMD} LiteSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --appearance_feature_layer layer0"
             echo "Executing command: ${CMD}"
             eval ${CMD}
             ;;
@@ -34,7 +34,7 @@ run_tracker() {
             ${BASE_CMD} DeepSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
             ;;
         "StrongSORT")
-            ${BASE_CMD} StrongSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --ECC --NSA --EMA --MC --woC
+            ${BASE_CMD} StrongSORT  --EMA --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --ECC --NSA --EMA --MC --woC
             ;;
         *)
             echo "Invalid tracker name"

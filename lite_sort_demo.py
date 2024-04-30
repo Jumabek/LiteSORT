@@ -20,6 +20,7 @@ def process_video(video_path):
         return
     model = YOLO("yolov8m.pt")
     print(model.info(verbose=True))
+
     nms_max_overlap = 1.0
     metric = nn_matching.NearestNeighborDistanceMetric(
         'cosine',
@@ -49,7 +50,7 @@ def process_video(video_path):
 
         # Process each frame
         yolo_results = model.predict(
-            frame_with_text, classes=[0], verbose=False, imgsz=1280, yolosort=True, conf=.25)
+            frame_with_text, classes=[0], verbose=False, imgsz=1280, appearance_feature_layer='layer0', conf=.25)
 
         boxes = yolo_results[0].boxes.data.cpu().numpy()
         for box in boxes:

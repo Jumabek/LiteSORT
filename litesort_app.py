@@ -164,13 +164,13 @@ def get_apperance_features(yolo_results, image, reid_model):
         return features_list  # [N, (1,128)]
 
 
-def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
+def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=None):
     detection_list = []
     # Get the specific image frame path
     # assuming frame names are like 000001.jpg, 000002.jpg, ...
 
     ext = '.jpg' if opt.dataset in [
-        'MOT17', 'MOT20', 'PersonPath22'] else '.png'
+        'MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S'] else '.png'
     img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}{ext}')
     # print(f"Processing image {img_path}")
 
@@ -180,9 +180,13 @@ def create_detections(seq_dir, frame_index, model, min_height, reid_model=None):
     # Load and predict
     image = cv2.imread(img_path)
     # Apply detection for 'person' class
-    isLiteSORT = opt.tracker_name == 'LiteSORT'
+    if opt.tracker_name == 'LiteSORT':
+        assert opt.appearance_feature_layer is not None, "Please provide the appearance feature layer in order to use LiteSORT"
+        appearance_feature_layer = opt.appearance_feature_layer
+    else:
+        appearance_feature_layer = None
     yolo_results = model.predict(
-        image, classes=[0], verbose=False, imgsz=opt.input_resolution, yolosort=isLiteSORT, conf=opt.min_confidence)
+        image, classes=[0], verbose=False, imgsz=opt.input_resolution, appearance_feature_layer=appearance_feature_layer, conf=opt.min_confidence)
     appearance_features = get_apperance_features(
         yolo_results, image, reid_model)
 
@@ -263,7 +267,7 @@ def load_deep_sort_model():
 
 def run(sequence_dir, output_file, min_confidence,
         nms_max_overlap, min_detection_height,
-        nn_budget, display):
+        nn_budget, display, verbose=False):
     """Run multi-target tracker on a particular sequence.
 
     Parameters
@@ -295,6 +299,7 @@ def run(sequence_dir, output_file, min_confidence,
     logging.debug(f"min_confidence = {min_confidence}")
 
     seq_info = gather_sequence_info(sequence_dir)
+
     metric = nn_matching.NearestNeighborDistanceMetric(
         'cosine',
         opt.max_cosine_distance,
@@ -308,12 +313,17 @@ def run(sequence_dir, output_file, min_confidence,
         reid_model = load_reid_model()
     elif opt.tracker_name == 'DeepSORT':
         reid_model = load_deep_sort_model()
+    elif opt.tracker_name == 'LiteSORT':
+        pass  # ReID features are extracted for free from detector itself in LiteSORT
 
     tick = time.time()
-
+    if verbose:
+        print(f"Processing \n")
     # inner function
+
     def frame_callback(vis, frame_idx):
-        # print("Processing frame %05d" % frame_idx)
+        if verbose:
+            print("\rProcessing frame %05d" % frame_idx, end='')
 
         # Load image and generate detections.
 
@@ -363,8 +373,10 @@ def run(sequence_dir, output_file, min_confidence,
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
 
-    if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22']:
+    if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S']:
         # Store results.
+        if verbose:
+            print(f"Saving results to {output_file}")
         f = open(output_file, 'w')
         for row in results:
             print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (
@@ -391,13 +403,19 @@ def run(sequence_dir, output_file, min_confidence,
                         f"{' '.join(map(lambda d: f'{d:.2f}', dimensions))} \n"
                         )
 
+    if not verbose:
+        return
+
     tock = time.time()
+
     time_spent_for_the_sequence = tock - tick
     time_info_s = f'time: {time_spent_for_the_sequence:.0f}s'
 
     num_frames = (seq_info["max_frame_idx"] - seq_info["min_frame_idx"])
     avg_time_per_frame = (time_spent_for_the_sequence) / num_frames
 
+    print(
+        f'Avg. processing speed: {1000*avg_time_per_frame:.0f} millisecond per frame')
     print(
         f'{time_info_s} | Avg FPS: {1/avg_time_per_frame:.1f}')
 
