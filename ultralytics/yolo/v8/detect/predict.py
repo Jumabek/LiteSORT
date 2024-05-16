@@ -10,21 +10,59 @@ import copy
 
 
 class DetectionPredictor(BasePredictor):
+    def postprocess_original(self, preds, img, orig_imgs):
+
+        # here img is [batchsize, channels, height, width] format
+        """Postprocesses predictions and returns a list of Results objects."""
+        """
+        Additionally, it returns a low level apperance features of the detected objects.
+        preds has 3 elements: yolo output (1,80+4,N), 3 anchor layer grids, first layer feature map
+
+        """
+
+        # log self.args.conf
+        preds = ops.non_max_suppression(preds,
+                                        self.args.conf,
+                                        self.args.iou,
+                                        agnostic=self.args.agnostic_nms,
+                                        max_det=self.args.max_det,
+                                        classes=self.args.classes)
+
+        results = []
+
+        for i, pred in enumerate(preds):  # iterates through each detection
+            orig_img = orig_imgs[i] if isinstance(
+                orig_imgs, list) else orig_imgs
+            if not isinstance(orig_imgs, torch.Tensor):
+                pred[:, :4] = ops.scale_boxes(
+                    img.shape[2:], pred[:, :4], orig_img.shape)
+
+                path = self.batch[0]
+                img_path = path[i] if isinstance(path, list) else path
+                results.append(Results(orig_img=orig_img, path=img_path,
+                                       names=self.model.names, boxes=pred, appearance_features=None))
+
+        return results
 
     def postprocess_new(self, preds, img, orig_imgs, appearance_feature_layer=None):
         """Postprocesses predictions to return a list of Results objects, possibly including appearance features."""
+        if appearance_feature_layer is None:
+            # if 1 == 1:
+            return self.postprocess_original(preds, img, orig_imgs)
+
         results = []
 
         # Handle appearance feature extraction if specified
         feature_maps = []
+        preds_copy = copy.deepcopy(preds)
         if appearance_feature_layer == 'layerconcat':
             # Specify the layer indices you want to concatenate
             layers = [0, 1, 3, 5, 7]
             feature_maps = [self.extract_appearance_features(
-                preds, layer) for layer in layers]
+                preds_copy, f'layer{layer}') for layer in layers]
         elif appearance_feature_layer is not None:
             feature_maps = [self.extract_appearance_features(
-                preds, appearance_feature_layer)]
+                preds_copy, appearance_feature_layer)]
 
         # Non-Max Suppression on predictions
         preds = ops.non_max_suppression(preds, self.args.conf, self.args.iou,
@@ -40,7 +78,7 @@ class DetectionPredictor(BasePredictor):
             features = None
             if feature_maps:
                 features = self.extract_and_concatenate_features(
-                    pred, feature_maps, img.shape)
+                    preds_copy[i], feature_maps, img.shape)
 
             img_path = self.get_image_path(i)
             results.append(Results(orig_img=orig_img, path=img_path,
@@ -58,13 +96,15 @@ class DetectionPredictor(BasePredictor):
         """Extract features for given bounding boxes from multiple feature maps and concatenate them."""
         concatenated_features = []
         for feature_map in feature_maps:
-            feature_dim = feature_map.shape[-1]
+
+            feature_dim = feature_map.shape[0]
             boxes = ops.scale_boxes(
                 img_shape[2:], pred[:, :4], feature_map.shape).long()
             features_normalized = []
             for box in boxes.cpu().numpy():
                 x_min, y_min, x_max, y_max = box
                 extracted_feature = feature_map[:, y_min:y_max, x_min:x_max]
+
                 if 0 not in extracted_feature.shape:
                     feature_mean = torch.mean(extracted_feature, dim=(1, 2))
                     normalized_feature = feature_mean / \
@@ -72,9 +112,14 @@ class DetectionPredictor(BasePredictor):
                 else:
                     normalized_feature = torch.ones(
                         feature_dim, dtype=torch.float32, device=feature_map.device)
+                # print("normalized_feature.shape", normalized_feature.shape)
+                # print("appending, normalized_feature.shape",
+                #      normalized_feature.shape)
                 features_normalized.append(normalized_feature)
 
             if features_normalized:
+                print("torch.stack(features_normalized, dim=0).shape=",
+                      torch.stack(features_normalized, dim=0).shape)
                 concatenated_features.append(
                     torch.stack(features_normalized, dim=0))
             else:
@@ -97,14 +142,13 @@ class DetectionPredictor(BasePredictor):
         """
         Additionally, it returns a low level apperance features of the detected objects.
         preds has 3 elements: yolo output (1,80+4,N), 3 anchor layer grids, first layer feature map
-        
+
         """
         if appearance_feature_layer:
             feature_map = preds[-1][appearance_feature_layer][0, :, :,
                                                               :]  # (48, 368, 640) # channel, height, width for yolov8m
             reshaped_feature_map = feature_map.permute(
-                1, 2, 0)  # (192, 320, 16)?, #
-            # feature_map (96, 184, 320)
+                1, 2, 0)  # (192, 320, 48)?, #
             feature_dim = reshaped_feature_map.shape[-1]
 
         # log self.args.conf

@@ -32,7 +32,7 @@ run_tracker() {
 # Iterate over specific resolutions, confidence thresholds, and appearance layers
 for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
-        for LAYER in 0 1 3 5 7; do
+        for LAYER in concat; do
             APPEARANCE_LAYER="layer${LAYER}"
             run_tracker ${INPUT_RESOLUTION} ${MIN_CONFIDENCE} ${APPEARANCE_LAYER}
         done

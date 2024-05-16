@@ -95,49 +95,7 @@ class Tracker:
             np.asarray(features), np.asarray(targets), active_targets)
 
     def _match(self, detections):
-        def gated_metric(tracks, dets, track_indices, detection_indices):
-            features = np.array(
-                [dets[i].feature for i in detection_indices])  # (18,emd_dim)
-            targets = np.array(
-                [tracks[i].track_id for i in track_indices])  # (10,)
-            cost_matrix = self.metric.distance(features, targets)
-            # cost_matrix = linear_assignment.gate_cost_matrix(
-            #     cost_matrix, tracks, dets, track_indices,
-            #     detection_indices)
-            return cost_matrix
-
-        # Check if appearance only matching is requested
-        if opt.appearance_only_matching:
-            # Split track set into confirmed (will be used for appearance-based matching) and unconfirmed tracks.
-            confirmed_tracks = [
-                i for i, t in enumerate(self.tracks) if t.is_confirmed()]
-            unconfirmed_tracks = [
-                i for i, t in enumerate(self.tracks) if not t.is_confirmed()]
-
-            # Associate confirmed tracks using appearance features.
-            matches_a, unmatched_tracks_a, unmatched_detections = \
-                linear_assignment.matching_cascade(
-                    gated_metric, self.metric.matching_threshold, self.max_age,
-                    self.tracks, detections, confirmed_tracks)
-            return matches_a, unconfirmed_tracks+unmatched_tracks_a, unmatched_detections
-            # Associate remaining tracks together with unconfirmed tracks using IOU.
-            iou_track_candidates = unconfirmed_tracks + [
-                k for k in unmatched_tracks_a if
-                self.tracks[k].time_since_update == 1]
-            unmatched_tracks_a = [
-                k for k in unmatched_tracks_a if
-                self.tracks[k].time_since_update != 1]
-            matches_b, unmatched_tracks_b, unmatched_detections = \
-                linear_assignment.min_cost_matching(
-                    iou_matching.iou_cost, self.max_iou_distance, self.tracks,
-                    detections, iou_track_candidates, unmatched_detections)
-
-            matches = matches_a + matches_b
-            unmatched_tracks = list(
-                set(unmatched_tracks_a + unmatched_tracks_b))
-
-            return matches, unmatched_tracks, unmatched_detections
-
+        # iou only matching
         if opt.tracker_name == "SORT":
             # If IOU_ONLY flag is set, skip the appearance feature matching and perform only IOU matching.
             matches, unmatched_tracks, unmatched_detections = \
@@ -146,6 +104,35 @@ class Tracker:
                     detections)
             return matches, unmatched_tracks, unmatched_detections
 
+        def gated_metric(tracks, dets, track_indices, detection_indices):
+            features = np.array(
+                [dets[i].feature for i in detection_indices])  # (18,emd_dim)
+            targets = np.array(
+                [tracks[i].track_id for i in track_indices])  # (10,)
+            cost_matrix = self.metric.distance(features, targets)
+            if not opt.appearance_only_matching:
+                cost_matrix = linear_assignment.gate_cost_matrix(
+                    cost_matrix, tracks, dets, track_indices,
+                    detection_indices)
+            return cost_matrix
+
+        # Check if appearance only matching is requested
+        if opt.appearance_only_matching:
+            # Use all tracks for appearance matching
+            all_tracks_indices = [i for i, _ in enumerate(self.tracks)]
+
+            # Match using appearance features with a cascading approach
+            matches, unmatched_tracks, unmatched_detections = linear_assignment.matching_cascade(
+                gated_metric,  # This function will calculate the appearance-based cost matrix
+                self.metric.matching_threshold,  # Matching threshold for the appearance features
+                self.max_age,  # Maximum age of the track to be considered
+                self.tracks,  # The list of current tracks
+                detections,  # The current detections
+                all_tracks_indices)  # Indices of all tracks to consider for matching
+
+            return matches, unmatched_tracks, unmatched_detections
+
+        # below code first matches using apperance features, then it matches using iou cost for deepsort
         # Split track set into confirmed (will be used for appearance-based matching) and unconfirmed tracks.
         confirmed_tracks = [
             i for i, t in enumerate(self.tracks) if t.is_confirmed()]

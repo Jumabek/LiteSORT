@@ -338,7 +338,8 @@ def run(sequence_dir, output_file, min_confidence,
         indices = preprocessing.non_max_suppression(
             boxes, nms_max_overlap, scores)
         detections = [detections[i] for i in indices]
-
+        # array([         40,      13.117,           0,      9.8826])
+        # array([         40,      13.057,           0,      9.9428])
         # Update tracker.
         if opt.ECC:
             tracker.camera_update(sequence_dir.split('/')[-1], frame_idx)
