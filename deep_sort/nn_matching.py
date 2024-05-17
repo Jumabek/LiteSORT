@@ -158,22 +158,6 @@ class NearestNeighborDistanceMetric(object):
         self.samples = {k: self.samples[k] for k in active_targets}
 
     def distance(self, features, targets):
-        cost_matrix = np.zeros((len(features), len(targets)))
-        for i, feature in enumerate(features):
-            for j, target in enumerate(targets):
-                if target in self.samples:
-                    cost_matrix[i, j] = self._metric(
-                        self.samples[target], feature)
-                else:
-                    # Handle the missing target case, perhaps by initializing or logging
-                    print(f"Warning: Target ID {target} not found in samples.")
-                    self.samples[target] = np.zeros_like(
-                        feature)  # Example initialization
-                    cost_matrix[i, j] = self._metric(
-                        self.samples[target], feature)
-        return cost_matrix
-
-    def distance_old(self, features, targets):
         """Compute distance between features and targets.
 
         Parameters

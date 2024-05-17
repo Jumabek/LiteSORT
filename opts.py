@@ -161,6 +161,12 @@ class opts:
             type=int,
             default=30
         )
+        # add argument for --max_cosine_distance
+        self.parser.add_argument(
+            '--max_cosine_distance',
+            type=float,
+            default=None
+        )
         self.parser.add_argument(
             '--appearance_feature_layer',
             type=str,
@@ -186,10 +192,9 @@ class opts:
             opt.max_cosine_distance = 0.4
         elif opt.tracker_name == 'LiteSORT':
             opt.woC = True
-            opt.max_cosine_distance = 0.3
-        elif opt.tracker_name == 'DeepSORT':
-            opt.max_cosine_distance = 0.3
-        else:
+
+        # if opt.max_cosine_distance is none then set it to 0.3
+        if opt.max_cosine_distance is None:
             opt.max_cosine_distance = 0.3
 
         if opt.MC:
@@ -212,4 +217,4 @@ class opts:
 
 opt = opts().parse()
 # Debug print
-print(f"Appearance Only Matching Flag: {opt.appearance_only_matching}")
+print(f"Parsed options: {opt.__dict__}")

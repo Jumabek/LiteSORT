@@ -119,7 +119,8 @@ class Tracker:
         # Check if appearance only matching is requested
         if opt.appearance_only_matching:
             # Use all tracks for appearance matching
-            all_tracks_indices = [i for i, _ in enumerate(self.tracks)]
+            all_tracks_indices = [i for i, t in enumerate(
+                self.tracks) if t.is_confirmed()]
 
             # Match using appearance features with a cascading approach
             matches, unmatched_tracks, unmatched_detections = linear_assignment.matching_cascade(
