@@ -299,7 +299,7 @@ def run(sequence_dir, output_file, min_confidence,
     logging.debug(f"min_confidence = {min_confidence}")
 
     seq_info = gather_sequence_info(sequence_dir)
-
+    print("opt.max_cosine_distance", opt.max_cosine_distance)
     metric = nn_matching.NearestNeighborDistanceMetric(
         'cosine',
         opt.max_cosine_distance,
