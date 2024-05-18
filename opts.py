@@ -172,6 +172,12 @@ class opts:
             type=str,
             default=None
         )
+        # add arg for gpu device
+        self.parser.add_argument(
+            '--device',
+            type=str,
+            default='cuda:0'
+        )
 
     def parse(self, args=''):
         if args == '':

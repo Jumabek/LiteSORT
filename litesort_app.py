@@ -243,7 +243,7 @@ def create_detections_original(detection_mat, frame_idx, min_height=0):
     return detection_list
 
 
-def load_reid_model():
+def load_reid_model(device='cuda:0'):
     cfg_path = 'checkpoints/FastReID/bagtricks_S50.yml'
     model_weights = 'checkpoints/FastReID/DukeMTMC_BoT-S50.pth'
 
@@ -253,21 +253,21 @@ def load_reid_model():
     cfg.MODEL.WEIGHTS = model_weights
     model = build_model(cfg)  # Use build_model directly
     model.eval()
-    Checkpointer(model).load(cfg.MODEL.WEIGHTS)
+    Checkpointer(model).load(cfg.MODEL.WEIGHTS, map_location=device)
     return model
 
 
-def load_deep_sort_model():
+def load_deep_sort_model(device='cuda:0'):
     from deep_apperance import DeepSORTApperanceExtractor
     model = DeepSORTApperanceExtractor(
-        "checkpoints/FastReID/deepsort/original_ckpt.t7")
+        "checkpoints/FastReID/deepsort/original_ckpt.t7",device)
 
     return model
 
 
 def run(sequence_dir, output_file, min_confidence,
         nms_max_overlap, min_detection_height,
-        nn_budget, display, verbose=False):
+        nn_budget, display, verbose=False, device='cuda:0'):
     """Run multi-target tracker on a particular sequence.
 
     Parameters
@@ -308,11 +308,13 @@ def run(sequence_dir, output_file, min_confidence,
     tracker = Tracker(metric, max_age=opt.max_age)
     results = []
     model = YOLO("yolov8m.pt")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.to(device)
     reid_model = None
     if opt.tracker_name == 'StrongSORT':
-        reid_model = load_reid_model()
+        reid_model = load_reid_model(device)
     elif opt.tracker_name == 'DeepSORT':
-        reid_model = load_deep_sort_model()
+        reid_model = load_deep_sort_model(device)
     elif opt.tracker_name == 'LiteSORT':
         pass  # ReID features are extracted for free from detector itself in LiteSORT
 
