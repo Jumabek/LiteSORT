@@ -68,8 +68,8 @@ class Tracker:
 
         """
         # Run matching cascade.
-        matches, unmatched_tracks, unmatched_detections = \
-            self._match(detections)
+        matches, unmatched_tracks, unmatched_detections = self._match(
+            detections)
 
         # Update track set.
         for track_idx, detection_idx in matches:
@@ -107,12 +107,12 @@ class Tracker:
             features = np.array(
                 [dets[i].feature for i in detection_indices])  # (18,emd_dim)
             targets = np.array(
-                [tracks[i].track_id for i in track_indices ])  # (10,)
+                [tracks[i].track_id for i in track_indices])  # (10,)
             cost_matrix = self.metric.distance(features, targets)
-            if not opt.appearance_only_matching:
-                cost_matrix = linear_assignment.gate_cost_matrix(
-                    cost_matrix, tracks, dets, track_indices,
-                    detection_indices)
+            # if not opt.appearance_only_matching:
+            cost_matrix = linear_assignment.gate_cost_matrix(
+                cost_matrix, tracks, dets, track_indices,
+                detection_indices)
             return cost_matrix
 
         if opt.appearance_only_matching:
