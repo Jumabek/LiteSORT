@@ -10,7 +10,7 @@ SPLIT="test"
 BASE_CMD="python TrackEval/scripts/run_person_path_22.py --TRACKERS_FOLDER"
 
 # Parent directory where all trackers' results are stored
-PARENT_TRACKERS_FOLDER="/home/juma/code/StrongSORT/results/scenarios/${BENCHMARK}"
+PARENT_TRACKERS_FOLDER="/workspace/LiteSORT/results/scenarios/${BENCHMARK}"
 
 echo "Starting the evaluation script..."
 
@@ -28,7 +28,7 @@ for res in "${RESOLUTIONS[@]}"; do
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD > "/home/juma/code/StrongSORT/results/scenarios/${BENCHMARK}-${SPLIT}.txt"
+        eval $EVAL_CMD > "/workspace/LiteSORT/results/scenarios/${BENCHMARK}-${SPLIT}.txt"
     done
 done
 
