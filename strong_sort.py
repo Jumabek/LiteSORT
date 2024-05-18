@@ -19,7 +19,7 @@ def process_sequence(seq):
         nms_max_overlap=opt.nms_max_overlap,
         min_detection_height=opt.min_detection_height,
         nn_budget=opt.nn_budget,
-        display=False,
+        display=True,
         verbose=False,
     )
     # The print statement here is modified to use a carriage return at the start.

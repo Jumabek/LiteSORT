@@ -68,8 +68,8 @@ class Tracker:
 
         """
         # Run matching cascade.
-        matches, unmatched_tracks, unmatched_detections = \
-            self._match(detections)
+        matches, unmatched_tracks, unmatched_detections = self._match(
+            detections)
 
         # Update track set.
         for track_idx, detection_idx in matches:
@@ -81,11 +81,10 @@ class Tracker:
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
-        active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+        active_targets = [t.track_id for t in self.tracks]
         features, targets = [], []
         for track in self.tracks:
-            if not track.is_confirmed():
-                continue
+
             features += track.features
             targets += [track.track_id for _ in track.features]
             if not opt.EMA:
@@ -110,27 +109,20 @@ class Tracker:
             targets = np.array(
                 [tracks[i].track_id for i in track_indices])  # (10,)
             cost_matrix = self.metric.distance(features, targets)
-            if not opt.appearance_only_matching:
-                cost_matrix = linear_assignment.gate_cost_matrix(
-                    cost_matrix, tracks, dets, track_indices,
-                    detection_indices)
+            # if not opt.appearance_only_matching:
+            cost_matrix = linear_assignment.gate_cost_matrix(
+                cost_matrix, tracks, dets, track_indices,
+                detection_indices)
             return cost_matrix
 
-        # Check if appearance only matching is requested
         if opt.appearance_only_matching:
-            # Use all tracks for appearance matching
-            all_tracks_indices = [i for i, t in enumerate(
-                self.tracks) if t.is_confirmed()]
-
-            # Match using appearance features with a cascading approach
-            matches, unmatched_tracks, unmatched_detections = linear_assignment.matching_cascade(
-                gated_metric,  # This function will calculate the appearance-based cost matrix
-                self.metric.matching_threshold,  # Matching threshold for the appearance features
-                self.max_age,  # Maximum age of the track to be considered
-                self.tracks,  # The list of current tracks
-                detections,  # The current detections
-                all_tracks_indices)  # Indices of all tracks to consider for matching
-
+            # Only use appearance features for matching
+            track_indices = np.arange(len(self.tracks))
+            detection_indices = np.arange(len(detections))
+            matches, unmatched_tracks, unmatched_detections = \
+                linear_assignment.min_cost_matching(
+                    gated_metric, self.max_iou_distance, self.tracks,
+                    detections, track_indices, detection_indices)
             return matches, unmatched_tracks, unmatched_detections
 
         # below code first matches using apperance features, then it matches using iou cost for deepsort
