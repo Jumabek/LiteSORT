@@ -10,3 +10,4 @@ myenv/
 
 fast-reid/
 fastreid/
+results/**/*.txt
