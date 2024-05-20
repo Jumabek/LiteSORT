@@ -208,45 +208,10 @@ def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=No
     return detection_list
 
 
-def create_detections_original(detection_mat, frame_idx, min_height=0):
-    "Strongsort original, uses precomputed features and detections"
-
-    """Create detections for given frame index from the raw detection matrix.
-
-    Parameters
-    ----------
-    detection_mat : ndarray
-        Matrix of detections. The first 10 columns of the detection matrix are
-        in the standard MOTChallenge detection format. In the remaining columns
-        store the feature vector associated with each detection.
-    frame_idx : int
-        The frame index.
-    min_height : Optional[int]
-        A minimum detection bounding box height. Detections that are smaller
-        than this value are disregarded.
-
-    Returns
-    -------
-    List[tracker.Detection]
-        Returns detection responses at given frame index.
-
-    """
-    frame_indices = detection_mat[:, 0].astype(int)
-    mask = frame_indices == frame_idx
-
-    detection_list = []
-    for row in detection_mat[mask]:
-        bbox, confidence, feature = row[2:6], row[6], row[10:]
-        if bbox[3] < min_height:
-            continue
-        detection_list.append(Detection(bbox, confidence, feature))
-    return detection_list
-
-
 def load_reid_model(device='cuda:0'):
     cfg_path = 'checkpoints/FastReID/bagtricks_S50.yml'
     model_weights = 'checkpoints/FastReID/DukeMTMC_BoT-S50.pth'
-
+    print("Loading ReID model on device", device)
     cfg = get_cfg()
     cfg.merge_from_file(cfg_path)
     cfg.MODEL.BACKBONE.PRETRAIN = False
@@ -258,6 +223,7 @@ def load_reid_model(device='cuda:0'):
 
 
 def load_deep_sort_model(device='cuda:0'):
+    print("Loading DeepSORT model onb device", device)
     from deep_apperance import DeepSORTApperanceExtractor
     model = DeepSORTApperanceExtractor(
         "checkpoints/FastReID/deepsort/original_ckpt.t7",device)
@@ -267,7 +233,7 @@ def load_deep_sort_model(device='cuda:0'):
 
 def run(sequence_dir, output_file, min_confidence,
         nms_max_overlap, min_detection_height,
-        nn_budget, display, verbose=False, device='cuda:0'):
+        nn_budget, display, device, verbose=False ):
     """Run multi-target tracker on a particular sequence.
 
     Parameters
@@ -299,7 +265,6 @@ def run(sequence_dir, output_file, min_confidence,
     logging.debug(f"min_confidence = {min_confidence}")
 
     seq_info = gather_sequence_info(sequence_dir)
-    print("opt.max_cosine_distance", opt.max_cosine_distance)
     metric = nn_matching.NearestNeighborDistanceMetric(
         'cosine',
         opt.max_cosine_distance,
@@ -308,7 +273,7 @@ def run(sequence_dir, output_file, min_confidence,
     tracker = Tracker(metric, max_age=opt.max_age)
     results = []
     model = YOLO("yolov8m.pt")
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    
     model.to(device)
     reid_model = None
     if opt.tracker_name == 'StrongSORT':
@@ -369,17 +334,16 @@ def run(sequence_dir, output_file, min_confidence,
 
     # Run tracker.
     if display:
-
         visualizer = visualization.Visualization(
             seq_info, update_ms=5, dir_save=opt.dir_save)
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
 
+    # 
+    if verbose:
+        print(f"storing predicted tracking results to {output_file}")
     if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S']:
-        # Store results.
-        if verbose:
-            print(f"Saving results to {output_file}")
         f = open(output_file, 'w')
         for row in results:
             print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (

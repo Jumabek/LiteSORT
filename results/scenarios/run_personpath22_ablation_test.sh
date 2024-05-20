@@ -35,7 +35,7 @@ run_tracker() {
 for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
         for LAYER in 7; do
-            for MAX_COSINE_DISTANCE in 0.05; do  # Iterate over desired cosine distances
+            for MAX_COSINE_DISTANCE in 0.2; do  # Iterate over desired cosine distances
                 APPEARANCE_LAYER="layer${LAYER}"
                 run_tracker ${INPUT_RESOLUTION} ${MIN_CONFIDENCE} ${APPEARANCE_LAYER} ${MAX_COSINE_DISTANCE}
             done

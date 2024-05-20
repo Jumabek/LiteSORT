@@ -81,11 +81,12 @@ class Tracker:
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
-        active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+        #active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+        active_targets = [t.track_id for t in self.tracks ]
         features, targets = [], []
         for track in self.tracks:
-            if not track.is_confirmed():
-                continue
+            # if not track.is_confirmed():
+            #     continue
             features += track.features
             targets += [track.track_id for _ in track.features]
             if not opt.EMA:
@@ -101,22 +102,22 @@ class Tracker:
             targets = np.array(
                 [tracks[i].track_id for i in track_indices])  # (10,)
             cost_matrix = self.metric.distance(features, targets)
-            cost_matrix = linear_assignment.gate_cost_matrix(
-                cost_matrix, tracks, dets, track_indices,
-                detection_indices)
+            # cost_matrix = linear_assignment.gate_cost_matrix(
+            #     cost_matrix, tracks, dets, track_indices,
+            #     detection_indices)
             return cost_matrix
         
         if opt.appearance_only_matching:
-            # If appearance_only_matching flag is set, skip the IOU matching and perform only appearance feature matching.
-            features = np.array([det.feature for det in detections])
-            targets = np.array([track.track_id for track in self.tracks if track.is_confirmed()])
-            cost_matrix = self.metric.distance(features, targets)
 
-            # Perform linear assignment based on appearance cost matrix
-            matches, unmatched_tracks, unmatched_detections = linear_assignment.min_cost_matching(
-                cost_matrix, self.tracks, detections
-            )
-            return matches, unmatched_tracks, unmatched_detections
+            confirmed_tracks = [
+            i for i, t in enumerate(self.tracks) ]
+            
+            # Associate confirmed tracks using appearance features.
+            matches_a, unmatched_tracks_a, unmatched_detections = \
+                linear_assignment.matching_cascade(
+                    gated_metric, self.metric.matching_threshold, self.max_age,
+                    self.tracks, detections, confirmed_tracks)
+            return matches_a, unmatched_tracks_a, unmatched_detections
             
         if opt.tracker_name == "SORT":
             # If IOU_ONLY flag is set, skip the appearance feature matching and perform only IOU matching.

@@ -1,6 +1,6 @@
 # vim: expandtab:ts=4:sw=4
 import numpy as np
-
+from . import linear_assignment
 
 def _pdist(a, b):
     """Compute pair-wise squared distance between points in `a` and `b`.
@@ -177,5 +177,8 @@ class NearestNeighborDistanceMetric(object):
         """
         cost_matrix = np.zeros((len(targets), len(features)))
         for i, target in enumerate(targets):
+            if target not in self.samples or self.samples[target] == []:
+                cost_matrix[i, :] = linear_assignment.INFTY_COST
+                continue
             cost_matrix[i, :] = self._metric(self.samples[target], features)
         return cost_matrix
