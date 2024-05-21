@@ -10,132 +10,131 @@ import copy
 
 
 class DetectionPredictor(BasePredictor):
+    
     def postprocess_original(self, preds, img, orig_imgs):
+        """Post-processes predictions and returns a list of Results objects."""
+        preds = ops.non_max_suppression(
+            preds,
+            self.args.conf,
+            self.args.iou,
+            agnostic=self.args.agnostic_nms,
+            max_det=self.args.max_det,
+            classes=self.args.classes,
+        )
 
-        # here img is [batchsize, channels, height, width] format
-        """Postprocesses predictions and returns a list of Results objects."""
-        """
-        Additionally, it returns a low level apperance features of the detected objects.
-        preds has 3 elements: yolo output (1,80+4,N), 3 anchor layer grids, first layer feature map
-
-        """
-
-        # log self.args.conf
-        preds = ops.non_max_suppression(preds,
-                                        self.args.conf,
-                                        self.args.iou,
-                                        agnostic=self.args.agnostic_nms,
-                                        max_det=self.args.max_det,
-                                        classes=self.args.classes)
+        if not isinstance(orig_imgs, list):  # input images are a torch.Tensor, not a list
+            orig_imgs = ops.convert_torch2numpy_batch(orig_imgs)
 
         results = []
-
-        for i, pred in enumerate(preds):  # iterates through each detection
-            orig_img = orig_imgs[i] if isinstance(
-                orig_imgs, list) else orig_imgs
-            if not isinstance(orig_imgs, torch.Tensor):
-                pred[:, :4] = ops.scale_boxes(
-                    img.shape[2:], pred[:, :4], orig_img.shape)
-
-                path = self.batch[0]
-                img_path = path[i] if isinstance(path, list) else path
-                results.append(Results(orig_img=orig_img, path=img_path,
-                                       names=self.model.names, boxes=pred, appearance_features=None))
-
-        return results
-
-    def postprocess_new(self, preds, img, orig_imgs, appearance_feature_layer=None):
-        """Postprocesses predictions to return a list of Results objects, possibly including appearance features."""
-        if appearance_feature_layer is None:
-            # if 1 == 1:
-            return self.postprocess_original(preds, img, orig_imgs)
-
-        results = []
-
-        # Handle appearance feature extraction if specified
-        feature_maps = []
-        preds_copy = copy.deepcopy(preds)
-        if appearance_feature_layer == 'layerconcat':
-            # Specify the layer indices you want to concatenate
-            layers = [0, 1, 3, 5, 7]
-            feature_maps = [self.extract_appearance_features(
-                preds_copy, f'layer{layer}') for layer in layers]
-        elif appearance_feature_layer is not None:
-            feature_maps = [self.extract_appearance_features(
-                preds_copy, appearance_feature_layer)]
-
-        # Non-Max Suppression on predictions
-        preds = ops.non_max_suppression(preds, self.args.conf, self.args.iou,
-                                        agnostic=self.args.agnostic_nms, max_det=self.args.max_det, classes=self.args.classes)
-
-        # Process each prediction to create results
         for i, pred in enumerate(preds):
-            orig_img = orig_imgs[i] if isinstance(
-                orig_imgs, list) else orig_imgs
-            pred[:, :4] = ops.scale_boxes(
-                img.shape[2:], pred[:, :4], orig_img.shape)  # Scale bounding boxes
-
-            features = None
-            if feature_maps:
-                features = self.extract_and_concatenate_features(
-                    preds_copy[i], feature_maps, img.shape)
-
-            img_path = self.get_image_path(i)
-            results.append(Results(orig_img=orig_img, path=img_path,
-                                   names=self.model.names, boxes=pred, appearance_features=features))
-
+            orig_img = orig_imgs[i]
+            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+            img_path = self.batch[0][i]
+            results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
         return results
-
-    def extract_appearance_features(self, preds, layer_index):
-        """Extract and reshape the appearance feature map from predictions."""
-        feature_map = preds[-1][layer_index][0]  # (channel, height, width)
-        reshaped_feature_map = feature_map.permute(1, 2, 0)
-        return reshaped_feature_map
-
-    def extract_and_concatenate_features(self, pred, feature_maps, img_shape):
-        """Extract features for given bounding boxes from multiple feature maps and concatenate them."""
-        concatenated_features = []
-        for feature_map in feature_maps:
-
-            feature_dim = feature_map.shape[0]
-            boxes = ops.scale_boxes(
-                img_shape[2:], pred[:, :4], feature_map.shape).long()
-            features_normalized = []
-            for box in boxes.cpu().numpy():
-                x_min, y_min, x_max, y_max = box
-                extracted_feature = feature_map[:, y_min:y_max, x_min:x_max]
-
-                if 0 not in extracted_feature.shape:
-                    feature_mean = torch.mean(extracted_feature, dim=(1, 2))
-                    normalized_feature = feature_mean / \
-                        feature_mean.norm(p=2, dim=0, keepdim=True)
-                else:
-                    normalized_feature = torch.ones(
-                        feature_dim, dtype=torch.float32, device=feature_map.device)
-                # print("normalized_feature.shape", normalized_feature.shape)
-                # print("appending, normalized_feature.shape",
-                #      normalized_feature.shape)
-                features_normalized.append(normalized_feature)
-
-            if features_normalized:
-                print("torch.stack(features_normalized, dim=0).shape=",
-                      torch.stack(features_normalized, dim=0).shape)
-                concatenated_features.append(
-                    torch.stack(features_normalized, dim=0))
-            else:
-                concatenated_features.append(torch.tensor([]))
-
-        if concatenated_features:
-            # Concatenate along feature dimension
-            return torch.cat(concatenated_features, dim=1)
-        return torch.tensor([])
-
-    def get_image_path(self, index):
-        """Retrieve the path for the image at the specified index."""
-        path = self.batch[0]
-        return path[index] if isinstance(path, list) else path
+    
+    
 
     def postprocess(self, preds, img, orig_imgs, appearance_feature_layer=None):
+        """
+        Postprocesses predictions and returns a list of Results objects.
+        Additionally, it returns low-level appearance features of the detected objects.
+        preds has 3 elements: yolo output (1,80+4,N), 3 anchor layer grids, first layer feature map.
+        
+        Args:
+            preds (list): Predictions from the model.
+            img (torch.Tensor): Input image in [batchsize, channels, height, width] format.
+            orig_imgs (torch.Tensor or list): Original images.
+            appearance_feature_layer (int, optional): The layer to extract appearance features from.
+        
+        Returns:
+            list: List of Results objects with detections and optional appearance features.
+        """
+        if appearance_feature_layer is None:
+            return self.postprocess_original(preds, img, orig_imgs)
+        
+        # Extract the feature map if appearance_feature_layer is not None
+        # appearance_feature_layer can be [layer0, layer1, layer3, layer5, layer 7 or layerconcat]
+        
+        preds_copy = copy.deepcopy(preds)
+
+        # Apply Non-Max Suppression (NMS)
+        preds = ops.non_max_suppression(
+            preds, 
+            self.args.conf, 
+            self.args.iou, 
+            agnostic=self.args.agnostic_nms, 
+            max_det=self.args.max_det, 
+            classes=self.args.classes
+        )
+        preds_for_feature_map = copy.deepcopy(preds)
+        
+        results = []
+
+        for i, pred in enumerate(preds): # each i is an image
+            orig_img = orig_imgs[i] if isinstance(orig_imgs, list) else orig_imgs
+
+            if not isinstance(orig_imgs, torch.Tensor):
+                pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
+
+            # Feature map extraction for appearance-based tracking
+            # bounding boxes are in img.shape format, so we need to scale them to feature map resolution
+            if appearance_feature_layer is  None:
+                features = None
+            else:
+                if appearance_feature_layer == 'layerconcat':
+                    layers = [0, 1, 3, 5, 7]
+                    features_list = [self.extract_appearance_features(preds_copy, preds_for_feature_map,f'layer{layer}',img) for layer in layers]
+                    features = torch.cat(features_list, dim=1) 
+                    features = features / features.norm(p=2, dim=0, keepdim=True)
+                else:
+                    features=self.extract_appearance_features(preds_copy,preds_for_feature_map,appearance_feature_layer,img)
+            
+            path = self.batch[0]
+            img_path = path[i] if isinstance(path, list) else path
+            results.append(Results(orig_img=orig_img, path=img_path, names=self.model.names, boxes=pred, appearance_features=features))
+
+        return results
+
+    def extract_feature_map(self, pred, appearance_feature_layer):
+        
+        feature_map = pred[-1][appearance_feature_layer][ 0,:, :, :]  # (48, 368, 640)
+        reshaped_feature_map = feature_map.permute(1, 2, 0)  # (368, 640, 48)
+        feature_dim = reshaped_feature_map.shape[-1]
+        return feature_map, feature_dim,reshaped_feature_map
+    
+    
+    def extract_appearance_features(self,preds_copy,preds_for_feature_map, appearance_feature_layer, img):
+        
+        
+        feature_map, feature_dim,reshaped_feature_map = self.extract_feature_map( preds_copy, appearance_feature_layer)
+        
+        preds_for_feature_map[0][:, :4] = ops.scale_boxes(img.shape[2:], preds_for_feature_map[0][:,:4], reshaped_feature_map.shape)
+        boxes = preds_for_feature_map[0][:,:4].long().cpu().numpy()
+        feature_dim = reshaped_feature_map.shape[-1]
+        features_normalized = []
+        for box in boxes:
+            x_min, y_min, x_max, y_max = box
+            extracted_feature = feature_map[:,y_min:y_max, x_min:x_max] # (48, 368, 640)
+
+            if 0 not in extracted_feature.shape:
+                
+                    
+                feature_mean = torch.mean(extracted_feature, dim=(1, 2)) # (48,)
+                normalized_feature = feature_mean / feature_mean.norm(p=2, dim=0, keepdim=True)
+            else:
+                normalized_feature = torch.ones(feature_dim, dtype=torch.float32, device=reshaped_feature_map.device)
+
+            features_normalized.append(normalized_feature)
+
+        # [18,576], for layer7 activations 576 is the feature dimension, 18 is the number of detections/crops
+        # if concat is used features should have the shape of [18, 48+,+,576]
+        features = torch.stack(features_normalized, dim=0) if features_normalized else torch.tensor([])
+        # End of Feature map extraction for appearance-based tracking
+        return features
+    
+    
+    def postprocess_backup(self, preds, img, orig_imgs, appearance_feature_layer=None):
 
         # here img is [batchsize, channels, height, width] format
         """Postprocesses predictions and returns a list of Results objects."""
