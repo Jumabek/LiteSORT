@@ -1,6 +1,6 @@
 import os
 import time
-from multiprocessing import Pool
+from multiprocessing import Pool, current_process
 from litesort_app import run
 from opts import opt
 import warnings
@@ -35,8 +35,7 @@ def process_sequence(seq, gpu_id):
         print(f'Error processing video {seq} on {device} (process ID: {os.getpid()}): {str(e)}', flush=True)
 
 def process_sequences_on_gpu(sequences, gpu_id):
-    max_workers = 4  # Number of processes per GPU
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+    with ThreadPoolExecutor(max_workers=2) as executor:  # Adjust max_workers as needed
         futures = [executor.submit(process_sequence, seq, gpu_id) for seq in sequences]
         for future in as_completed(futures):
             try:

@@ -102,9 +102,9 @@ class Tracker:
             targets = np.array(
                 [tracks[i].track_id for i in track_indices])  # (10,)
             cost_matrix = self.metric.distance(features, targets)
-            # cost_matrix = linear_assignment.gate_cost_matrix(
-            #     cost_matrix, tracks, dets, track_indices,
-            #     detection_indices)
+            cost_matrix = linear_assignment.gate_cost_matrix(
+                cost_matrix, tracks, dets, track_indices,
+                detection_indices)
             return cost_matrix
         
         if opt.appearance_only_matching:

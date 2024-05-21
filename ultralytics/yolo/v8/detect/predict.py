@@ -79,16 +79,19 @@ class DetectionPredictor(BasePredictor):
 
             # Feature map extraction for appearance-based tracking
             # bounding boxes are in img.shape format, so we need to scale them to feature map resolution
-            if appearance_feature_layer is  None:
+            if appearance_feature_layer is None:
                 features = None
             else:
                 if appearance_feature_layer == 'layerconcat':
                     layers = [0, 1, 3, 5, 7]
-                    features_list = [self.extract_appearance_features(preds_copy, preds_for_feature_map,f'layer{layer}',img) for layer in layers]
-                    features = torch.cat(features_list, dim=1) 
-                    features = features / features.norm(p=2, dim=0, keepdim=True)
+                    features_list = [
+                        self.extract_appearance_features(preds_copy, preds_for_feature_map, f'layer{layer}', img)
+                        for layer in layers
+                    ]
+                    features = torch.cat(features_list, dim=1)
+                    features = features / features.norm(p=2, dim=1, keepdim=True)  # Normalize concatenated features
                 else:
-                    features=self.extract_appearance_features(preds_copy,preds_for_feature_map,appearance_feature_layer,img)
+                    features = self.extract_appearance_features(preds_copy, preds_for_feature_map, appearance_feature_layer, img)
             
             path = self.batch[0]
             img_path = path[i] if isinstance(path, list) else path
@@ -97,42 +100,32 @@ class DetectionPredictor(BasePredictor):
         return results
 
     def extract_feature_map(self, pred, appearance_feature_layer):
-        
-        feature_map = pred[-1][appearance_feature_layer][ 0,:, :, :]  # (48, 368, 640)
+        feature_map = pred[-1][appearance_feature_layer][0, :, :, :]  # (48, 368, 640)
         reshaped_feature_map = feature_map.permute(1, 2, 0)  # (368, 640, 48)
         feature_dim = reshaped_feature_map.shape[-1]
-        return feature_map, feature_dim,reshaped_feature_map
-    
-    
-    def extract_appearance_features(self,preds_copy,preds_for_feature_map, appearance_feature_layer, img):
+        return feature_map, feature_dim, reshaped_feature_map
+
+    def extract_appearance_features(self, preds_copy, preds_for_feature_map, appearance_feature_layer, img):
+        feature_map, feature_dim, reshaped_feature_map = self.extract_feature_map(preds_copy, appearance_feature_layer)
         
-        
-        feature_map, feature_dim,reshaped_feature_map = self.extract_feature_map( preds_copy, appearance_feature_layer)
-        
-        preds_for_feature_map[0][:, :4] = ops.scale_boxes(img.shape[2:], preds_for_feature_map[0][:,:4], reshaped_feature_map.shape)
-        boxes = preds_for_feature_map[0][:,:4].long().cpu().numpy()
-        feature_dim = reshaped_feature_map.shape[-1]
+        preds_for_feature_map[0][:, :4] = ops.scale_boxes(img.shape[2:], preds_for_feature_map[0][:, :4], reshaped_feature_map.shape)
+        boxes = preds_for_feature_map[0][:, :4].long().cpu().numpy()
         features_normalized = []
         for box in boxes:
             x_min, y_min, x_max, y_max = box
-            extracted_feature = feature_map[:,y_min:y_max, x_min:x_max] # (48, 368, 640)
+            extracted_feature = feature_map[:, y_min:y_max, x_min:x_max]  # (48, height, width)
 
             if 0 not in extracted_feature.shape:
-                
-                    
-                feature_mean = torch.mean(extracted_feature, dim=(1, 2)) # (48,)
+                feature_mean = torch.mean(extracted_feature, dim=(1, 2))  # (48,)
                 normalized_feature = feature_mean / feature_mean.norm(p=2, dim=0, keepdim=True)
             else:
                 normalized_feature = torch.ones(feature_dim, dtype=torch.float32, device=reshaped_feature_map.device)
 
             features_normalized.append(normalized_feature)
 
-        # [18,576], for layer7 activations 576 is the feature dimension, 18 is the number of detections/crops
-        # if concat is used features should have the shape of [18, 48+,+,576]
         features = torch.stack(features_normalized, dim=0) if features_normalized else torch.tensor([])
-        # End of Feature map extraction for appearance-based tracking
         return features
-    
+
     
     def postprocess_backup(self, preds, img, orig_imgs, appearance_feature_layer=None):
 

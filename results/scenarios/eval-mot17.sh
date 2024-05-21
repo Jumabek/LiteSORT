@@ -9,7 +9,7 @@ BENCHMARK="MOT17"
 BASE_CMD="python TrackEval/scripts/run_mot_challenge.py"
 
 # Parent directory where all trackers' results are stored
-PARENT_TRACKERS_FOLDER="/home/juma/code/StrongSORT/results/scenarios"
+PARENT_TRACKERS_FOLDER="results/scenarios"
 
 echo "Starting the evaluation script..."
 
@@ -32,7 +32,7 @@ for res in "${RESOLUTIONS[@]}"; do
                     --OUTPUT_SUMMARY True \
                     --OUTPUT_EMPTY_CLASSES False \
                     --OUTPUT_DETAILED True \
-                    --PLOT_CURVES False"
+                    --PLOT_CURVES True"
 
         # Print the evaluation command
         echo "Evaluation command: ${EVAL_CMD}"
