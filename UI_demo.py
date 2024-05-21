@@ -111,7 +111,7 @@ def process_video(video_path):
 
 def main():
     process_video(
-        'VIRAT_S_010204_07_000942_000989.mp4') # path is set
+        'uploaded_video.mp4') # path is set
 
 
 if __name__ == "__main__":

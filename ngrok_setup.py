@@ -8,7 +8,7 @@ def run_ngrok():
     ngrok.set_auth_token("2gcTed5OlN8yYDICnjYmEGp5IdP_7XrNbqhYHgPoxvZ7G8qxU")
 
     # Use the static domain
-    public_url = ngrok.connect(8501, bind_tls=True, hostname="crucial-jaybird-immense.ngrok-free.app")
+    public_url = ngrok.connect(8501, bind_tls=True, hostname="tracker-dashboard.ngrok.app")
     print(f'Public URL: {public_url}')
 
 def run_streamlit():
