@@ -90,12 +90,12 @@ class Visualization(object):
     This class shows tracking output in an OpenCV image viewer.
     """
 
-    def __init__(self, seq_info, update_ms, dir_save):
+    def __init__(self, seq_info, update_ms, dir_save, display=False):
         image_shape = seq_info["image_size"][::-1]
         aspect_ratio = float(image_shape[1]) / image_shape[0]
         image_shape = 1024, int(aspect_ratio * 1024)
         self.viewer = ImageViewer(
-            update_ms, image_shape, "Figure %s" % seq_info["sequence_name"])
+            update_ms, image_shape, "Figure %s" % seq_info["sequence_name"], display=display)
         self.viewer.thickness = 2
         self.frame_idx = seq_info["min_frame_idx"]
         self.last_idx = seq_info["max_frame_idx"]
@@ -104,24 +104,34 @@ class Visualization(object):
         import os
 
         self.tracker_name = opt.tracker_name
+        self.display = display
 
         # Check if folder exists, if not create one
         if not os.path.exists(dir_save):
             os.makedirs(dir_save)
         self.img_size_for_video_writer = image_shape  # (2*640, 2*480)
+        # self.video_writer = cv2.VideoWriter(
+        #     f'{dir_save}/{seq_info["sequence_name"]}.avi',
+        #     cv2.VideoWriter_fourcc(*'DIVX'),
+        #     20.0,
+        #     self.img_size_for_video_writer
+        # )
         self.video_writer = cv2.VideoWriter(
-            f'{dir_save}/{seq_info["sequence_name"]}.avi',
-            cv2.VideoWriter_fourcc(*'DIVX'),
-            20.0,
+            f'{dir_save}/{seq_info["sequence_name"]}.mp4',  # Change the file extension to .mp4
+            cv2.VideoWriter_fourcc(*'XVID'),  # Change the codec to 'XVID' or another MP4 compatible codec
+            30.0,
             self.img_size_for_video_writer
         )
+
+
+
         if not self.video_writer.isOpened():
             print("Error: Video writer not initialized!")
 
     def run(self, frame_callback):
-
+    
         self.viewer.run(lambda: self._update_fun(frame_callback))
-
+        
     def _update_fun(self, frame_callback):
         if self.frame_idx > self.last_idx:
             self.video_writer.release()
@@ -136,17 +146,7 @@ class Visualization(object):
         self.frame_idx += 1
         return True
 
-    # def run(self, frame_callback):
-    #     self.viewer.run(lambda: self._update_fun(frame_callback))
-
-    # def _update_fun(self, frame_callback):
-    #     if self.frame_idx > self.last_idx:
-    #         # Release the video writer before terminating
-    #         self.video_writer.release()
-    #         return False  # Terminate
-    #     frame_callback(self, self.frame_idx)
-    #     self.frame_idx += 1
-    #     return True
+  
 
     def set_image(self, image):
         self.viewer.image = image

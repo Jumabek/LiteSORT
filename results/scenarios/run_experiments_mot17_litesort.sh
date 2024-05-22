@@ -20,7 +20,7 @@ run_tracker() {
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME} with Input Resolution: ${INPUT_RESOLUTION}, Confidence Threshold: ${MIN_CONFIDENCE}, Appearance Feature Layer: ${APPEARANCE_LAYER}, Max Cosine Distance: ${MAX_COSINE_DISTANCE}, Appearance Only: ${APPEARANCE_ONLY_FLAG}"
 
-    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}-${SPLIT}/${APPEARANCE_LAYER}_${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}__cosdist_${MAX_COSINE_DISTANCE}/data/"
+    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}-${SPLIT}/Visualize_${APPEARANCE_LAYER}_${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}__cosdist_${MAX_COSINE_DISTANCE}/data/"
     if [ ! -d "${DIR_SAVE}" ]; then
         mkdir -p "${DIR_SAVE}"
     fi
@@ -51,8 +51,8 @@ fi
 APPEARANCE_ONLY="false"  # Set this to "true" or "false" as needed
 for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
-        for LAYER in 3 5 7 concat; do
-            for MAX_COSINE_DISTANCE in 0.5 0.1 0.15 0.2 0.25 0.3 0.35 0.4; do
+        for LAYER in 7 concat; do
+            for MAX_COSINE_DISTANCE in  0.3; do
                 APPEARANCE_LAYER="layer${LAYER}"
                 run_tracker "${INPUT_RESOLUTION}" "${MIN_CONFIDENCE}" "${APPEARANCE_LAYER}" "${MAX_COSINE_DISTANCE}" "${APPEARANCE_ONLY}"
             done

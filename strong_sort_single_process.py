@@ -23,6 +23,7 @@ def process_sequence(seq, gpu_id):
         min_detection_height=opt.min_detection_height,
         nn_budget=opt.nn_budget,
         display=False,
+        visualize=True,
         verbose=False,
         device=device
     )

@@ -233,7 +233,7 @@ def load_deep_sort_model(device='cuda:0'):
 
 def run(sequence_dir, output_file, min_confidence,
         nms_max_overlap, min_detection_height,
-        nn_budget, display, device, verbose=False ):
+        nn_budget, display, device, verbose=False, visualize=False ):
     """Run multi-target tracker on a particular sequence.
 
     Parameters
@@ -315,7 +315,7 @@ def run(sequence_dir, output_file, min_confidence,
         tracker.update(detections)
 
         # Update visualization.
-        if display:
+        if visualize:
             image = cv2.imread(
                 seq_info["image_filenames"][frame_idx], cv2.IMREAD_COLOR)
             vis.set_image(image.copy())
@@ -333,9 +333,9 @@ def run(sequence_dir, output_file, min_confidence,
                 frame_idx, track.track_id, bbox[0], bbox[1], bbox[2], bbox[3]])
 
     # Run tracker.
-    if display:
+    if visualize:
         visualizer = visualization.Visualization(
-            seq_info, update_ms=5, dir_save=opt.dir_save)
+            seq_info, update_ms=5, dir_save=opt.dir_save,display=display)
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
