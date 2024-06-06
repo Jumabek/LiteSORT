@@ -81,8 +81,8 @@ class Tracker:
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
-        #active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
-        active_targets = [t.track_id for t in self.tracks ]
+        # active_targets = [t.track_id for t in self.tracks if t.is_confirmed()]
+        active_targets = [t.track_id for t in self.tracks]
         features, targets = [], []
         for track in self.tracks:
             # if not track.is_confirmed():
@@ -106,19 +106,19 @@ class Tracker:
                 cost_matrix, tracks, dets, track_indices,
                 detection_indices)
             return cost_matrix
-        
+
         if opt.appearance_only_matching:
 
             confirmed_tracks = [
-            i for i, t in enumerate(self.tracks) ]
-            
+                i for i, t in enumerate(self.tracks)]
+
             # Associate confirmed tracks using appearance features.
             matches_a, unmatched_tracks_a, unmatched_detections = \
                 linear_assignment.matching_cascade(
                     gated_metric, self.metric.matching_threshold, self.max_age,
                     self.tracks, detections, confirmed_tracks)
             return matches_a, unmatched_tracks_a, unmatched_detections
-            
+
         if opt.tracker_name == "SORT":
             # If IOU_ONLY flag is set, skip the appearance feature matching and perform only IOU matching.
             matches, unmatched_tracks, unmatched_detections = \

@@ -7,7 +7,7 @@ BENCHMARK="PersonPath22"
 SPLIT="test" 
 
 # Base Command
-BASE_CMD="python TrackEval/scripts/run_person_path_22.py --TRACKERS_FOLDER"
+BASE_CMD="python TrackEval/scripts/run_person_path_22.py --NUM_PARALLEL_CORES 50 --TRACKERS_FOLDER "
 
 # Parent directory where all trackers' results are stored
 PARENT_TRACKERS_FOLDER="/workspace/LiteSORT/results/scenarios/${BENCHMARK}"

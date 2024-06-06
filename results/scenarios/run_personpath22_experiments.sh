@@ -6,7 +6,7 @@ DATASET="PersonPath22"
 SPLIT="test"
 
 # Base Command
-BASE_CMD="python3 strong_sort_fps.py ${DATASET} ${SPLIT}"
+BASE_CMD="python3 strong_sort_single_process.py ${DATASET} ${SPLIT}"
 
 # Function to run tracker
 run_tracker() {
@@ -15,7 +15,7 @@ run_tracker() {
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME} with Input Resolution: ${INPUT_RESOLUTION} and Confidence Threshold: ${MIN_CONFIDENCE}"  # Debug message
 
-    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}/person_path_22-${SPLIT}-fps/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}_max_cosine_distance_0.5/data"
+    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}/person_path_22-${SPLIT}/visualization_${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}_max_cosine_distance_0.5/data"
     if [ ! -d "${DIR_SAVE}" ]; then
         mkdir -p ${DIR_SAVE}
     fi
@@ -49,7 +49,7 @@ for INPUT_RESOLUTION in 1280; do
     for MIN_CONFIDENCE in .25; do
         # Run experiments for all trackers
         run_tracker "SORT"
-        run_tracker "LiteSORT"
+        #run_tracker "LiteSORT"
         run_tracker "DeepSORT"
         run_tracker "StrongSORT"
     done

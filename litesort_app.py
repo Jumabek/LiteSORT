@@ -218,7 +218,7 @@ def load_reid_model(device='cuda:0'):
     cfg.MODEL.WEIGHTS = model_weights
     model = build_model(cfg)  # Use build_model directly
     model.eval()
-    Checkpointer(model).load(cfg.MODEL.WEIGHTS, map_location=device)
+    Checkpointer(model).load(cfg.MODEL.WEIGHTS)
     return model
 
 
@@ -226,14 +226,14 @@ def load_deep_sort_model(device='cuda:0'):
     print("Loading DeepSORT model onb device", device)
     from deep_apperance import DeepSORTApperanceExtractor
     model = DeepSORTApperanceExtractor(
-        "checkpoints/FastReID/deepsort/original_ckpt.t7",device)
+        "checkpoints/FastReID/deepsort/original_ckpt.t7", device)
 
     return model
 
 
 def run(sequence_dir, output_file, min_confidence,
         nms_max_overlap, min_detection_height,
-        nn_budget, display, device, verbose=False, visualize=False ):
+        nn_budget, display, device, verbose=False, visualize=False):
     """Run multi-target tracker on a particular sequence.
 
     Parameters
@@ -273,7 +273,7 @@ def run(sequence_dir, output_file, min_confidence,
     tracker = Tracker(metric, max_age=opt.max_age)
     results = []
     model = YOLO("yolov8m.pt")
-    
+
     model.to(device)
     reid_model = None
     if opt.tracker_name == 'StrongSORT':
@@ -335,12 +335,12 @@ def run(sequence_dir, output_file, min_confidence,
     # Run tracker.
     if visualize:
         visualizer = visualization.Visualization(
-            seq_info, update_ms=5, dir_save=opt.dir_save,display=display)
+            seq_info, update_ms=5, dir_save=opt.dir_save, display=display)
     else:
         visualizer = visualization.NoVisualization(seq_info)
     visualizer.run(frame_callback)
 
-    # 
+    #
     if verbose:
         print(f"storing predicted tracking results to {output_file}")
     if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S']:
