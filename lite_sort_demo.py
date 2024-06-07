@@ -1,13 +1,14 @@
-import cv2
-import sys
-import argparse
-from ultralytics import YOLO
+# dont apply autopep8 to below line
+# yapf: disable
 from deep_sort.detection import Detection
 from application_util import preprocessing
 from deep_sort.tracker import Tracker
 from deep_sort import nn_matching
-
+from ultralytics import YOLO
 import numpy as np
+import argparse
+import sys
+import cv2
 
 
 def process_video(video_path):
@@ -109,7 +110,7 @@ def process_video(video_path):
 def main():
 
     process_video(
-        'VIRAT_S_010204_07_000942_000989.mp4')
+        'demo/VIRAT_S_010204_07_000942_000989.mp4')
 
 
 if __name__ == "__main__":
