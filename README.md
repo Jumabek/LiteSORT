@@ -9,7 +9,7 @@ Main difference of LiteSORT from BoxMOT is LiteSORT provides more reliable evalu
 
 # Demo
 
-`python lite_sort_demo.py MOT17 trainDummy LiteSORT  --input_resolution 1280 --min_confidence .25 --dir_save temp `
+`python lite_sort_demo.py MOT17 train LiteSORT  --input_resolution 1280 --min_confidence .25 --dir_save temp `
 
 ![image](https://github.com/Jumabek/LiteSORT/assets/4343873/46f0d58b-72bb-489f-a9b3-496da30f820b)
 

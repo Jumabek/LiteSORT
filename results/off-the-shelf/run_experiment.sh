@@ -7,33 +7,31 @@ MIN_CONFIDENCE=".25"
 DATASET="MOT17"
 
 # Base Command
-BASE_CMD="python strong_sort.py ${DATASET} train"
+BASE_CMD="python strong_sort_single_process.py ${DATASET} train"
 
 # Function to run tracker
 run_tracker() {
-
     TRACKER_NAME=$1
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME}"  # Debug message
 
-
     DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}"
-    if [ ! -d "${DIR_SAVE}" ]; then
-        mkdir -p ${DIR_SAVE}
-    fi
+    mkdir -p "${DIR_SAVE}"
+
+    CMD_OPTIONS="--dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
 
     case ${TRACKER_NAME} in
         "SORT")
-            ${BASE_CMD} --iou_only --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            ${BASE_CMD} "SORT" ${CMD_OPTIONS} 
             ;;
         "LiteSORT")
-            ${BASE_CMD} --yolosort --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            ${BASE_CMD} ${CMD_OPTIONS} 
             ;;
         "DeepSORT")
-            ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            ${BASE_CMD} ${CMD_OPTIONS}
             ;;
         "StrongSORT")
-            ${BASE_CMD} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --ECC --NSA --EMA --MC --woC
+            ${BASE_CMD} ${CMD_OPTIONS} --BoT --ECC --NSA --EMA --MC --woC
             ;;
         *)
             echo "Invalid tracker name"
@@ -43,8 +41,10 @@ run_tracker() {
     echo "Experiment completed for ${TRACKER_NAME}!"
 }
 
+# List of trackers
+TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
+
 # Run experiments for all trackers
-run_tracker "SORT"
-run_tracker "LiteSORT"
-run_tracker "DeepSORT"
-run_tracker "StrongSORT"
+for TRACKER in "${TRACKERS[@]}"; do
+    run_tracker "${TRACKER}"
+done
