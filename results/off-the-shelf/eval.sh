@@ -19,7 +19,7 @@ for tracker in "${TRACKERS[@]}"; do
             echo "-------------------------------------------"
             echo "Processing tracker: ${tracker}, resolution: ${res}, and confidence: ${conf}"
 
-            TRACKER_PATH="/home/juma/code/StrongSORT/results/${EXPERIMENT_NAME}/${BENCHMARK}/${tracker}__input_${res}__conf_${conf}"
+            TRACKER_PATH="/workspace/LiteSORT/results/${EXPERIMENT_NAME}/${BENCHMARK}/${tracker}__input_${res}__conf_${conf}"
             # Check if the tracker folder exists
             if [ -d "${TRACKER_PATH}" ]; then
             
@@ -27,7 +27,7 @@ for tracker in "${TRACKERS[@]}"; do
                 EVAL_CMD="${BASE_CMD} \
                     --BENCHMARK ${BENCHMARK} \
                     --SPLIT_TO_EVAL train \
-                    --TRACKERS_TO_EVAL "/home/juma/code/StrongSORT/results" \
+                    --TRACKERS_TO_EVAL "/workspace/LiteSORT/results" \
                     --TRACKER_SUB_FOLDER  "${EXPERIMENT_NAME}/${BENCHMARK}/${tracker}__input_${res}__conf_${conf}" \
                     --METRICS HOTA CLEAR Identity VACE \
                     --USE_PARALLEL False \

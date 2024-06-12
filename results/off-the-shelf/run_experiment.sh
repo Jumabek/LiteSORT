@@ -25,13 +25,13 @@ run_tracker() {
             ${BASE_CMD} "SORT" ${CMD_OPTIONS} 
             ;;
         "LiteSORT")
-            ${BASE_CMD} ${CMD_OPTIONS} 
+            ${BASE_CMD} "LiteSORT" ${CMD_OPTIONS} --woC --appearance_feature_layer "layer0"
             ;;
         "DeepSORT")
-            ${BASE_CMD} ${CMD_OPTIONS}
+            ${BASE_CMD} "DeepSORT" ${CMD_OPTIONS}
             ;;
         "StrongSORT")
-            ${BASE_CMD} ${CMD_OPTIONS} --BoT --ECC --NSA --EMA --MC --woC
+            ${BASE_CMD} "StrongSORT" ${CMD_OPTIONS} --BoT --ECC --NSA --EMA --MC --woC
             ;;
         *)
             echo "Invalid tracker name"
@@ -42,7 +42,8 @@ run_tracker() {
 }
 
 # List of trackers
-TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
+#TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
+TRACKERS=("DeepSORT" "StrongSORT")
 
 # Run experiments for all trackers
 for TRACKER in "${TRACKERS[@]}"; do
