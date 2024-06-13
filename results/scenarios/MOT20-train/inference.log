@@ -1,0 +1,141 @@
+(myenv) juma@juma-System-Product-Name:/media/juma/code/MOT/LiteSORT$ bash results/scenarios/run_experiments_mot20.sh
+-----------------------------------
+Running tracker: SORT with Input Resolution: 1280 and Confidence Threshold: .25
+Parsed options: {'dataset': 'MOT20', 'mode': 'train', 'tracker_name': 'SORT', 'input_resolution': 1280, 'min_confidence': 0.25, 'classes': [0], 'appearance_only_matching': False, 'BoT': False, 'ECC': False, 'NSA': False, 'EMA': False, 'MC': False, 'woC': False, 'root_dataset': 'datasets/', 'dir_save': 'results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/', 'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.3, 'appearance_feature_layer': None, 'device': 'cuda:0', 'nms_max_overlap': 1.0, 'min_detection_height': 0, 'nn_budget': 100, 'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 'dir_dataset': 'datasets/MOT20/train'}
+Processing video MOT20-01 on cuda:0 (process ID: 36786)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/MOT20-01.txt
+Avg. processing speed: 30 millisecond per frame
+time: 13s | Avg FPS: 33.2
+Finished processing video MOT20-01 on cuda:0 in 13.05 seconds
+Processing video MOT20-02 on cuda:0 (process ID: 36786)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/MOT20-02.txt
+Avg. processing speed: 29 millisecond per frame
+time: 80s | Avg FPS: 34.6
+Finished processing video MOT20-02 on cuda:0 in 80.56 seconds
+Processing video MOT20-03 on cuda:0 (process ID: 36786)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/MOT20-03.txt
+Avg. processing speed: 32 millisecond per frame
+time: 76s | Avg FPS: 31.6
+Finished processing video MOT20-03 on cuda:0 in 76.36 seconds
+Processing video MOT20-05 on cuda:0 (process ID: 36786)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/MOT20-05.txt
+Avg. processing speed: 33 millisecond per frame
+time: 108s | Avg FPS: 30.7
+Finished processing video MOT20-05 on cuda:0 in 108.36 seconds
+Total time taken for the run: 278.33 seconds
+Experiment completed for SORT!
+-----------------------------------
+Running tracker: LiteSORT with Input Resolution: 1280 and Confidence Threshold: .25
+Parsed options: {'dataset': 'MOT20', 'mode': 'train', 'tracker_name': 'LiteSORT', 'input_resolution': 1280, 'min_confidence': 0.25, 'classes': [0], 'appearance_only_matching': False, 'BoT': False, 'ECC': False, 'NSA': False, 'EMA': False, 'MC': False, 'woC': True, 'root_dataset': 'datasets/', 'dir_save': 'results/scenarios/MOT20-train-fps/visualization_LiteSORT__input_1280__conf_.25/data/', 'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.3, 'appearance_feature_layer': 'layer0', 'device': 'cuda:0', 'nms_max_overlap': 1.0, 'min_detection_height': 0, 'nn_budget': 100, 'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 'dir_dataset': 'datasets/MOT20/train'}
+Processing video MOT20-01 on cuda:0 (process ID: 37800)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_LiteSORT__input_1280__conf_.25/data/MOT20-01.txt
+Avg. processing speed: 44 millisecond per frame
+time: 19s | Avg FPS: 22.8
+Finished processing video MOT20-01 on cuda:0 in 18.92 seconds
+Processing video MOT20-02 on cuda:0 (process ID: 37800)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_LiteSORT__input_1280__conf_.25/data/MOT20-02.txt
+Avg. processing speed: 44 millisecond per frame
+time: 123s | Avg FPS: 22.6
+Finished processing video MOT20-02 on cuda:0 in 123.37 seconds
+Processing video MOT20-03 on cuda:0 (process ID: 37800)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_LiteSORT__input_1280__conf_.25/data/MOT20-03.txt
+Avg. processing speed: 251 millisecond per frame
+time: 603s | Avg FPS: 4.0
+Finished processing video MOT20-03 on cuda:0 in 602.81 seconds
+Processing video MOT20-05 on cuda:0 (process ID: 37800)...
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_LiteSORT__input_1280__conf_.25/data/MOT20-05.txt
+Avg. processing speed: 103 millisecond per frame
+time: 341s | Avg FPS: 9.7
+Finished processing video MOT20-05 on cuda:0 in 341.65 seconds
+Total time taken for the run: 1086.75 seconds
+Experiment completed for LiteSORT!
+-----------------------------------
+Running tracker: DeepSORT with Input Resolution: 1280 and Confidence Threshold: .25
+Parsed options: {'dataset': 'MOT20', 'mode': 'train', 'tracker_name': 'DeepSORT', 'input_resolution': 1280, 'min_confidence': 0.25, 'classes': [0], 'appearance_only_matching': False, 'BoT': False, 'ECC': False, 'NSA': False, 'EMA': False, 'MC': False, 'woC': False, 'root_dataset': 'datasets/', 'dir_save': 'results/scenarios/MOT20-train-fps/visualization_DeepSORT__input_1280__conf_.25/data/', 'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.3, 'appearance_feature_layer': None, 'device': 'cuda:0', 'nms_max_overlap': 1.0, 'min_detection_height': 0, 'nn_budget': 100, 'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 'dir_dataset': 'datasets/MOT20/train'}
+Processing video MOT20-01 on cuda:0 (process ID: 40144)...
+Loading DeepSORT model onb device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_DeepSORT__input_1280__conf_.25/data/MOT20-01.txt
+Avg. processing speed: 192 millisecond per frame
+time: 82s | Avg FPS: 5.2
+Finished processing video MOT20-01 on cuda:0 in 83.81 seconds
+Processing video MOT20-02 on cuda:0 (process ID: 40144)...
+Loading DeepSORT model onb device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_DeepSORT__input_1280__conf_.25/data/MOT20-02.txt
+Avg. processing speed: 234 millisecond per frame
+time: 650s | Avg FPS: 4.3
+Finished processing video MOT20-02 on cuda:0 in 649.72 seconds
+Processing video MOT20-03 on cuda:0 (process ID: 40144)...
+Loading DeepSORT model onb device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_DeepSORT__input_1280__conf_.25/data/MOT20-03.txt
+Avg. processing speed: 292 millisecond per frame
+time: 701s | Avg FPS: 3.4
+Finished processing video MOT20-03 on cuda:0 in 701.06 seconds
+Processing video MOT20-05 on cuda:0 (process ID: 40144)...
+Loading DeepSORT model onb device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_DeepSORT__input_1280__conf_.25/data/MOT20-05.txt
+Avg. processing speed: 229 millisecond per frame
+time: 760s | Avg FPS: 4.4
+Finished processing video MOT20-05 on cuda:0 in 759.88 seconds
+Total time taken for the run: 2194.47 seconds
+Experiment completed for DeepSORT!
+-----------------------------------
+Running tracker: StrongSORT with Input Resolution: 1280 and Confidence Threshold: .25
+Parsed options: {'dataset': 'MOT20', 'mode': 'train', 'tracker_name': 'StrongSORT', 'input_resolution': 1280, 'min_confidence': 0.25, 'classes': [0], 'appearance_only_matching': False, 'BoT': True, 'ECC': False, 'NSA': True, 'EMA': True, 'MC': True, 'woC': True, 'root_dataset': 'datasets/', 'dir_save': 'results/scenarios/MOT20-train-fps/visualization_StrongSORT__input_1280__conf_.25/data/', 'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.45, 'appearance_feature_layer': None, 'device': 'cuda:0', 'nms_max_overlap': 1.0, 'min_detection_height': 0, 'nn_budget': 1, 'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 'dir_dataset': 'datasets/MOT20/train'}
+Processing video MOT20-01 on cuda:0 (process ID: 43402)...
+Loading ReID model on device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_StrongSORT__input_1280__conf_.25/data/MOT20-01.txt
+Avg. processing speed: 372 millisecond per frame
+time: 159s | Avg FPS: 2.7
+Finished processing video MOT20-01 on cuda:0 in 161.33 seconds
+Processing video MOT20-02 on cuda:0 (process ID: 43402)...
+Loading ReID model on device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_StrongSORT__input_1280__conf_.25/data/MOT20-02.txt
+Avg. processing speed: 399 millisecond per frame
+time: 1111s | Avg FPS: 2.5
+Finished processing video MOT20-02 on cuda:0 in 1111.28 seconds
+Processing video MOT20-03 on cuda:0 (process ID: 43402)...
+Loading ReID model on device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_StrongSORT__input_1280__conf_.25/data/MOT20-03.txt
+Avg. processing speed: 718 millisecond per frame
+time: 1725s | Avg FPS: 1.4
+Finished processing video MOT20-03 on cuda:0 in 1725.47 seconds
+Processing video MOT20-05 on cuda:0 (process ID: 43402)...
+Loading ReID model on device cuda:0
+Processing 
+
+storing predicted tracking results to results/scenarios/MOT20-train-fps/visualization_StrongSORT__input_1280__conf_.25/data/MOT20-05.txt
+Avg. processing speed: 563 millisecond per frame
+time: 1865s | Avg FPS: 1.8
+Finished processing video MOT20-05 on cuda:0 in 1865.80 seconds
+Total time taken for the run: 4863.89 seconds
+Experiment completed for StrongSORT!

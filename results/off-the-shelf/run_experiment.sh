@@ -43,8 +43,8 @@ run_tracker() {
 
 # List of trackers
 #TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
-TRACKERS=("DeepSORT" "StrongSORT")
-
+#TRACKERS=("DeepSORT" "StrongSORT")
+TRACKERS=("SORT" )
 # Run experiments for all trackers
 for TRACKER in "${TRACKERS[@]}"; do
     run_tracker "${TRACKER}"

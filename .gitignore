@@ -10,5 +10,5 @@ myenv/
 
 fast-reid/
 fastreid/
-#results/**/*.txt
 results/**/*.mp4
+results/visualization

@@ -25,6 +25,8 @@ for res in "${RESOLUTIONS[@]}"; do
                     --BENCHMARK ${BENCHMARK} \
                     --TRACKERS_FOLDER ${PARENT_TRACKERS_FOLDER} \
                     --SPLIT_TO_EVAL train \
+                    --TRACKERS_TO_EVAL DeepSORT__input_1280__conf_.25 LiteSORT__input_1280__conf_.25 SORT__input_1280__conf_.25   StrongSORT__input_1280__conf_.25 \
+                    --TRACKER_SUB_FOLDER data \
                     --METRICS HOTA CLEAR Identity VACE \
                     --USE_PARALLEL True \
                     --NUM_PARALLEL_CORES 16 \

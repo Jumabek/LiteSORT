@@ -118,7 +118,7 @@ class Visualization(object):
         # )
         self.video_writer = cv2.VideoWriter(
             f'{dir_save}/{seq_info["sequence_name"]}.mp4',  # Change the file extension to .mp4
-            cv2.VideoWriter_fourcc(*'XVID'),  # Change the codec to 'XVID' or another MP4 compatible codec
+            cv2.VideoWriter_fourcc(*'mp4v'),  # Change the codec to 'XVID' or another MP4 compatible codec
             30.0,
             self.img_size_for_video_writer
         )
