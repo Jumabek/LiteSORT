@@ -289,9 +289,7 @@ def run(sequence_dir, output_file, min_confidence,
     # inner function
 
     def frame_callback(vis, frame_idx):
-        if verbose:
-            print("\rProcessing frame %05d" % frame_idx, end='')
-
+        
         # Load image and generate detections.
 
         detections = create_detections(
