@@ -113,10 +113,12 @@ class opts:
 
         self.parser.add_argument(
             '--classes',
-            type=list,
-            help='Uses pre-computed detections and apperance features',
-            default=[0]
+            nargs='+',  # '+' means "at least one", '*' for zero or more
+            type=int,
+            help='For Detection',
+            default=[0]  # default list if nothing is provided
         )
+
 
         self.parser.add_argument(
             '--appearance_only_matching',  # Corrected typo here

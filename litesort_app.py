@@ -186,7 +186,7 @@ def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=No
     else:
         appearance_feature_layer = None
     yolo_results = model.predict(
-        image, classes=[0], verbose=False, imgsz=opt.input_resolution, appearance_feature_layer=appearance_feature_layer, conf=opt.min_confidence)
+        image, classes=opt.classes, verbose=False, imgsz=opt.input_resolution, appearance_feature_layer=appearance_feature_layer, conf=opt.min_confidence)
     appearance_features = get_apperance_features(
         yolo_results, image, reid_model)
 
