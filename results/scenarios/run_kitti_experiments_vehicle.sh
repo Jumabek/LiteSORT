@@ -4,7 +4,7 @@
 EXPERIMENT_NAME="scenarios"
 DATASET="KITTI"
 SPLIT="train"
-CLASSES="0 2 5 7"  # Classes for vehicle detection
+CLASSES="2 5 7"  # Classes for vehicle detection
 
 # Base Command
 BASE_CMD="python3 strong_sort.py ${DATASET} ${SPLIT}"

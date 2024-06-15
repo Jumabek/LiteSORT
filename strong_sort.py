@@ -57,7 +57,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     gpu_ids = [0, 1, 2, 3]  # List of GPU indices to use
-    gpu_ids = [0]  # List of GPU indices to use
+    #gpu_ids = [0]  # List of GPU indices to use
     sequences = opt.sequences
 
     # Split sequences into chunks, one for each GPU
