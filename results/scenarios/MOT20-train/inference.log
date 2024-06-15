@@ -1,7 +1,18 @@
 (myenv) juma@juma-System-Product-Name:/media/juma/code/MOT/LiteSORT$ bash results/scenarios/run_experiments_mot20.sh
 -----------------------------------
 Running tracker: SORT with Input Resolution: 1280 and Confidence Threshold: .25
-Parsed options: {'dataset': 'MOT20', 'mode': 'train', 'tracker_name': 'SORT', 'input_resolution': 1280, 'min_confidence': 0.25, 'classes': [0], 'appearance_only_matching': False, 'BoT': False, 'ECC': False, 'NSA': False, 'EMA': False, 'MC': False, 'woC': False, 'root_dataset': 'datasets/', 'dir_save': 'results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/', 'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.3, 'appearance_feature_layer': None, 'device': 'cuda:0', 'nms_max_overlap': 1.0, 'min_detection_height': 0, 'nn_budget': 100, 'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 'dir_dataset': 'datasets/MOT20/train'}
+Parsed options: {'dataset': 'MOT20', 'mode': 'train',
+ 'tracker_name': 'SORT', 'input_resolution': 1280
+ , 'min_confidence': 0.25, 'classes': [0]
+ , 'appearance_only_matching': False, 'BoT': False, 'ECC': False
+ , 'NSA': False, 'EMA': False, 'MC': False, 'woC': False,
+  'root_dataset': 'datasets/', 
+  'dir_save': 'results/scenarios/MOT20-train-fps/visualization_SORT__input_1280__conf_.25/data/',
+   'EMA_alpha': 0.9, 'MC_lambda': 0.98, 'max_age': 30, 'max_cosine_distance': 0.3,
+    'appearance_feature_layer': None, 'device': 'cuda:0', 'nms_max_overlap': 1.0,
+     'min_detection_height': 0, 'nn_budget': 100,
+      'sequences': ['MOT20-01', 'MOT20-02', 'MOT20-03', 'MOT20-05'], 
+      'dir_dataset': 'datasets/MOT20/train'}
 Processing video MOT20-01 on cuda:0 (process ID: 36786)...
 Processing 
 

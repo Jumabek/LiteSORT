@@ -169,30 +169,32 @@ def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=No
     # Get the specific image frame path
     # assuming frame names are like 000001.jpg, 000002.jpg, ...
 
+    # KITTI has png extension
     ext = '.jpg' if opt.dataset in [
         'MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S'] else '.png'
     img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}{ext}')
-    # print(f"Processing image {img_path}")
 
     if not os.path.exists(img_path):
         raise ValueError(f"Image path {img_path} doesn't exist.")
 
     # Load and predict
     image = cv2.imread(img_path)
-    # Apply detection for 'person' class
+    
+    # get the name of the YOLOv8 layer to extract appearance features. 
     if opt.tracker_name == 'LiteSORT':
         assert opt.appearance_feature_layer is not None, "Please provide the appearance feature layer in order to use LiteSORT"
         appearance_feature_layer = opt.appearance_feature_layer
     else:
         appearance_feature_layer = None
+
     yolo_results = model.predict(
         image, classes=opt.classes, verbose=False, imgsz=opt.input_resolution, appearance_feature_layer=appearance_feature_layer, conf=opt.min_confidence)
     appearance_features = get_apperance_features(
         yolo_results, image, reid_model)
 
     boxes = yolo_results[0].boxes.data.cpu().numpy()
-
-    for box, feature in zip(boxes, appearance_features):
+    classes = yolo_results[0].boxes.cls.cpu().numpy()
+    for box, feature, cls in zip(boxes, appearance_features, classes):
         xmin, ymin, xmax, ymax, conf, _ = box
         x_tl = xmin
         y_tl = ymin
@@ -201,7 +203,7 @@ def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=No
         bbox = (x_tl, y_tl, width, height)
         if height < min_height:
             continue
-        detection = Detection(bbox, conf, feature)
+        detection = Detection(bbox, conf, feature, cls)
 
         detection_list.append(detection)
 
@@ -350,7 +352,11 @@ def run(sequence_dir, output_file, min_confidence,
         with open(output_file, 'w') as f:
             for row in results:
                 # Set default values for fields that might not be available in your tracker
-                object_type = "Pedestrian"  # or your default
+                if 7 in opt.classes:
+                    object_type = 'car'
+                else:
+                    object_type = "pedestrian"  # or your default
+                
                 truncated = -1  # default, as this info might not be available
                 occluded = -1  # default, as this info might not be available
                 alpha = -10  # default, as this info might not be available
