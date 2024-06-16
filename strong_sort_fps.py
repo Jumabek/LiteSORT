@@ -10,6 +10,7 @@ warnings.filterwarnings("ignore")
 def process_sequence(seq):
     print(f'Processing video {seq}...')
     path_save = join(opt.dir_save, seq + '.txt')
+    device = f'cuda:0'
     run(
         sequence_dir=join(opt.dir_dataset, seq),
         output_file=path_save,
@@ -17,7 +18,9 @@ def process_sequence(seq):
         nms_max_overlap=opt.nms_max_overlap,
         min_detection_height=opt.min_detection_height,
         nn_budget=opt.nn_budget,
-        display=True
+        display=True,
+        device=device,
+        verbose=True
     )
     print(f'Finished video {seq}')
 
