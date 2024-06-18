@@ -3,7 +3,7 @@
 # List of resolutions and confidence thresholds
 RESOLUTIONS=(1280)
 CONFIDENCES=(.25)
-BENCHMARK="KITTI-train-vehicle" 
+BENCHMARK="KITTI-train" 
 
 # Base Command
 BASE_CMD="python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER"
