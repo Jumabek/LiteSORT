@@ -12,3 +12,5 @@ fast-reid/
 fastreid/
 results/**/*.mp4
 results/visualization
+
+yolo_tracking/

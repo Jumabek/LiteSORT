@@ -4,6 +4,7 @@
 # Hardcoded Variables
 EXPERIMENT_NAME="scenarios"
 DATASET="VIRAT-S"
+CLASSES="2 5 7"  # Classes for vehicle detection
 
 # Base Command
 BASE_CMD="python strong_sort.py ${DATASET} train "
@@ -23,24 +24,23 @@ run_tracker() {
 
     case ${TRACKER_NAME} in
         "SORT")
-            ${BASE_CMD} SORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            CMD="${BASE_CMD} SORT --classes ${CLASSES} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
             ;;
         "LiteSORT")
-            CMD="${BASE_CMD} LiteSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --appearance_feature_layer layer0"
-            echo "Executing command: ${CMD}"
-            eval ${CMD}
+            CMD="${BASE_CMD} LiteSORT --classes ${CLASSES} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --appearance_feature_layer layer0 --woC"
             ;;
         "DeepSORT")
-            ${BASE_CMD} DeepSORT --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}
+            CMD="${BASE_CMD} DeepSORT --classes ${CLASSES} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
             ;;
         "StrongSORT")
-            ${BASE_CMD} StrongSORT  --EMA --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --ECC --NSA --EMA --MC --woC
+            CMD="${BASE_CMD} StrongSORT --classes ${CLASSES} --dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE} --BoT --NSA --EMA --MC --woC"
             ;;
         *)
             echo "Invalid tracker name"
             exit 1
             ;;
     esac
+
     echo "Experiment completed for ${TRACKER_NAME}!"
 }
 

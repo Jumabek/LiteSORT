@@ -3,7 +3,7 @@
 # List of resolutions, confidence thresholds, and trackers
 RESOLUTIONS=(1280)
 CONFIDENCES=(.25)
-TRACKERS=("DeepSORT" "StrongSORT" "LiteSORT" "SORT")
+TRACKERS=("DeepSORT" "StrongSORT" "LiteSORT" "SORT" "DeepOC-SORT")
 BENCHMARK="MOT17" 
 EXPERIMENT_NAME='off-the-shelf'
 # Base Command
