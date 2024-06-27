@@ -78,6 +78,7 @@ class AutoBackend(nn.Module):
             | TensorFlow Edge TPU   | *_edgetpu.tflite |
             | PaddlePaddle          | *_paddle_model   |
         """
+        print(f"Device to load is {device}")
         super().__init__()
         w = str(weights[0] if isinstance(weights, list) else weights)
         nn_module = isinstance(weights, torch.nn.Module)
@@ -394,7 +395,7 @@ class AutoBackend(nn.Module):
                 box = xywh2xyxy(y['coordinates'] *
                                 [[w, h, w, h]])  # xyxy pixels
                 conf, cls = y['confidence'].max(
-                    1), y['confidence'].argmax(1).astype(np.float)
+                    1), y['confidence'].argmax(1).astype(float)
                 y = np.concatenate(
                     (box, conf.reshape(-1, 1), cls.reshape(-1, 1)), 1)
             elif len(y) == 1:  # classification model

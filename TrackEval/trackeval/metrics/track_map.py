@@ -259,8 +259,8 @@ class TrackMAP(_BaseMetric):
 
         # compute the precision and recall averages for the respective alpha thresholds and ignore masks
         for lbl in self.lbls:
-            res['AP_' + lbl] = np.zeros((len(self.array_labels)), dtype=np.float)
-            res['AR_' + lbl] = np.zeros((len(self.array_labels)), dtype=np.float)
+            res['AP_' + lbl] = np.zeros((len(self.array_labels)), dtype=float)
+            res['AR_' + lbl] = np.zeros((len(self.array_labels)), dtype=float)
 
         for a_id, alpha in enumerate(self.array_labels):
             for lbl_idx, lbl in enumerate(self.lbls):
@@ -280,7 +280,7 @@ class TrackMAP(_BaseMetric):
         """
         res = {}
         for field in self.fields:
-            res[field] = np.zeros((len(self.array_labels)), dtype=np.float)
+            res[field] = np.zeros((len(self.array_labels)), dtype=float)
             field_stacked = np.array([res[field] for res in all_res.values()])
 
             for a_id, alpha in enumerate(self.array_labels):
@@ -297,7 +297,7 @@ class TrackMAP(_BaseMetric):
 
         res = {}
         for field in self.fields:
-            res[field] = np.zeros((len(self.array_labels)), dtype=np.float)
+            res[field] = np.zeros((len(self.array_labels)), dtype=float)
             field_stacked = np.array([res[field] for res in all_res.values()])
 
             for a_id, alpha in enumerate(self.array_labels):
