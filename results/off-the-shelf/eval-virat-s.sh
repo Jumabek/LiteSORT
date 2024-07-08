@@ -25,7 +25,7 @@ for res in "${RESOLUTIONS[@]}"; do
                     --BENCHMARK ${BENCHMARK} \
                     --TRACKERS_FOLDER ${PARENT_TRACKERS_FOLDER} \
                     --SPLIT_TO_EVAL test \
-                    --TRACKERS_TO_EVAL BoTSORT__input_1280__conf_.25 ByteTRACK__input_1280__conf_.25 DeepOC-SORT__input_1280__conf_.25 OCSORT__input_1280__conf_.25 \
+                    --TRACKERS_TO_EVAL BOTSORT__input_1280__conf_.25 BYTETRACK__input_1280__conf_.25 DEEPOCSORT__input_1280__conf_.25 OCSORT__input_1280__conf_.25 \
                     --TRACKER_SUB_FOLDER data \
                     --METRICS HOTA CLEAR Identity VACE \
                     --USE_PARALLEL True \
@@ -40,7 +40,7 @@ for res in "${RESOLUTIONS[@]}"; do
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD #> "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
+        eval $EVAL_CMD > "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
     done
 done
 
