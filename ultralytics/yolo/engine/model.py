@@ -248,6 +248,9 @@ class YOLO:
             x in sys.argv for x in ('predict', 'track', 'mode=predict', 'mode=track'))
         overrides = self.overrides.copy()
         # overrides['conf'] = 0.25
+
+        # print(f'Confidence threshold used by detector: {overrides["conf"]}')
+
         overrides.update(kwargs)  # prefer kwargs
         overrides['mode'] = kwargs.get('mode', 'predict')
         assert overrides['mode'] in ['track', 'predict']
@@ -284,6 +287,9 @@ class YOLO:
             register_tracker(self, persist)
         # ByteTrack-based method needs low confidence predictions as input
         conf = kwargs.get('conf') or 0.1
+        
+        # print(f'Detector uses confidence threshold of {conf}')
+
         kwargs['conf'] = conf
         kwargs['mode'] = 'track'
         return self.predict(source=source, stream=stream, **kwargs)
