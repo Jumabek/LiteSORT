@@ -13,11 +13,14 @@ EXPERIMENT_NAME="fps"
 INPUT_RESOLUTION="1280"
 MIN_CONFIDENCE=".25"
 DATASET="MOT17"
-PATH_TO_SEQ="/workspace/LiteSORT/datasets/MOT17/train/MOT17-02-FRCNN/img1"
+# PATH_TO_SEQ="/workspace/LiteSORT/datasets/MOT17/train/MOT17-02-FRCNN/img1"
+PATH_TO_SEQ="/media/hbai/data/code/LiteSORT/datasets/MOT17/train/MOT17-02-FRCNN/img1"
+
 TOTAL_FRAMES=600  # Adjust this according to your dataset
 
 # Base Command
-BASE_CMD="python /workspace/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
+# BASE_CMD="python /workspace/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
+BASE_CMD="python3 /media/hbai/data/code/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
 
 # Function to run tracker
 run_tracker() {

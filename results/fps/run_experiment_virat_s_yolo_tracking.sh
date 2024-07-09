@@ -13,11 +13,15 @@ EXPERIMENT_NAME="fps"
 INPUT_RESOLUTION="1280"
 MIN_CONFIDENCE=".25"
 DATASET="VIRAT-S"
-PATH_TO_SEQ="/workspace/LiteSORT/datasets/VIRAT-S/train/VIRAT_S_010000_06_000728_000762/img1"
+# PATH_TO_SEQ="/workspace/LiteSORT/datasets/VIRAT-S/train/VIRAT_S_010000_06_000728_000762/img1"
+PATH_TO_SEQ="/media/hbai/data/code/LiteSORT/datasets/VIRAT-S/train/VIRAT_S_010000_06_000728_000762/img1"
+
 TOTAL_FRAMES=766  # Adjust this according to your dataset
 
 # Base Command
-BASE_CMD="python /workspace/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
+# BASE_CMD="python /workspace/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
+BASE_CMD="python3 /media/hbai/data/code/LiteSORT/yolo_tracking/tracking/track.py --classes 0 --yolo-model yolov8m"
+
 
 # Function to run tracker
 run_tracker() {
