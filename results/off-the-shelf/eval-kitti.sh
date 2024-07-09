@@ -6,10 +6,10 @@ CONFIDENCES=(.25)
 BENCHMARK="KITTI-train" 
 
 # Base Command
-BASE_CMD="python TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER"
+BASE_CMD="python3 TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER"
 
 # Parent directory where all trackers' results are stored
-PARENT_TRACKERS_FOLDER="/workspace/LiteSORT/results/off-the-shelf/${BENCHMARK}"
+PARENT_TRACKERS_FOLDER="/media/hbai/data/code/LiteSORT/results/off-the-shelf/${BENCHMARK}"
 
 echo "Starting the evaluation script..."
 
@@ -27,7 +27,7 @@ for res in "${RESOLUTIONS[@]}"; do
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD > "/workspace/LiteSORT/results/off-the-shelf/${BENCHMARK}_fixed_settings.txt"
+        eval $EVAL_CMD > "/media/hbai/data/code/LiteSORT/results/off-the-shelf/${BENCHMARK}_fixed_settings.txt"
     done
 done
 
