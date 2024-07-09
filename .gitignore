@@ -13,4 +13,10 @@ fastreid/
 results/**/*.mp4
 results/visualization
 
+results/fps
+
 yolo_tracking/
+
+cpu_temp_log.txt
+cpu_temp_logger.sh
+gpu_monitor.py

@@ -6,7 +6,7 @@ CONFIDENCES=(.25)
 BENCHMARK="virat_s" 
 
 # Base Command 
-BASE_CMD="python TrackEval/scripts/run_virat_s.py"
+BASE_CMD="python3 TrackEval/scripts/run_virat_s.py"
 
 # Parent directory where all trackers' results are stored
 PARENT_TRACKERS_FOLDER="results/off-the-shelf"
