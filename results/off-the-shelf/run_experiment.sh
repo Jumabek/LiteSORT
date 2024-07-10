@@ -4,10 +4,10 @@
 EXPERIMENT_NAME="off-the-shelf"
 INPUT_RESOLUTION="1280"
 MIN_CONFIDENCE=".25"
-DATASET="MOT17"
+DATASET="KITTI"
 
 # Base Command
-BASE_CMD="python strong_sort_single_process.py ${DATASET} train"
+BASE_CMD="python3 strong_sort_single_process.py ${DATASET} train"
 
 # Function to run tracker
 run_tracker() {
@@ -15,7 +15,7 @@ run_tracker() {
     echo "-----------------------------------"
     echo "Running tracker: ${TRACKER_NAME}"  # Debug message
 
-    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}"
+    DIR_SAVE="results/${EXPERIMENT_NAME}/${DATASET}_new_try/${TRACKER_NAME}__input_${INPUT_RESOLUTION}__conf_${MIN_CONFIDENCE}"
     mkdir -p "${DIR_SAVE}"
 
     CMD_OPTIONS="--dir_save ${DIR_SAVE} --input_resolution ${INPUT_RESOLUTION} --min_confidence ${MIN_CONFIDENCE}"
@@ -42,9 +42,9 @@ run_tracker() {
 }
 
 # List of trackers
-#TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
-#TRACKERS=("DeepSORT" "StrongSORT")
-TRACKERS=("SORT" )
+TRACKERS=("SORT" "LiteSORT" "DeepSORT" "StrongSORT")
+# TRACKERS=("DeepSORT" "StrongSORT")
+# TRACKERS=("SORT" )
 # Run experiments for all trackers
 for TRACKER in "${TRACKERS[@]}"; do
     run_tracker "${TRACKER}"
