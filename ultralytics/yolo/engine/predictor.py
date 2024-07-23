@@ -139,6 +139,8 @@ class BasePredictor:
     def inference(self, im, *args, **kwargs):
         visualize = increment_path(self.save_dir / Path(self.batch[0][0]).stem,
                                    mkdir=True) if self.args.visualize and (not self.source_type.tensor) else False
+        # print(f'args (predictor.py): {args}')
+        
         return self.model(im, augment=self.args.augment, visualize=visualize)
 
     def pre_transform(self, im):
@@ -265,6 +267,8 @@ class BasePredictor:
 
             # Inference
             with profilers[1]:
+                # print(f'kwargs.imgsz (predictor.py): {kwargs.get("imgsz")}')
+                # print(f'self.args.imgsz (predictor.py): {self.args.imgsz}')
                 preds = self.inference(im, *args, **kwargs)
 
             # Postprocess
@@ -333,6 +337,7 @@ class BasePredictor:
         self.device = self.model.device  # update device
         self.args.half = self.model.fp16  # update half
         self.model.eval()
+        # print(f"self.model.args (predictor.py): {self.model.args}")
 
     def show(self, p):
         """Display an image in a window using OpenCV imshow()."""
