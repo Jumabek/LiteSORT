@@ -42,7 +42,10 @@ def on_predict_postprocess_end(predictor):
     im0s = predictor.batch[1]
     for i in range(bs):
         det = predictor.results[i].boxes.data.cpu().numpy()
-        appearance_feature = predictor.results[i].appearance_features.cpu().numpy()
+        if predictor.results[i].appearance_features is not None:
+            appearance_feature = predictor.results[i].appearance_features.cpu().numpy()
+        else:
+            appearance_feature = None
         if len(det) == 0:
             continue
         tracks = predictor.trackers[i].update(det, im0s[i], appearance_feature)

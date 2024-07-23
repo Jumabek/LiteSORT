@@ -288,8 +288,6 @@ class YOLO:
         # ByteTrack-based method needs low confidence predictions as input
         conf = kwargs.get('conf') or 0.1
         
-        # print(f'Detector uses confidence threshold of {conf}')
-
         kwargs['conf'] = conf
         kwargs['mode'] = 'track'
         return self.predict(source=source, stream=stream, **kwargs)
