@@ -74,9 +74,9 @@ def main(tracking_method, sequence):
         return
     
     tracking_dir = tracking_dirs[tracking_method.lower()]
-    image_dir = f'/home/hbai/Desktop/LiteSORT/datasets/PersonPath22/test/{sequence}/img1'
-    result_file = f'/home/hbai/Desktop/LiteSORT/results/off-the-shelf/fixed-settings/person_path_22-test_fixed-settings/{tracking_dir}/data/{sequence}.txt'
-    output_dir = f'/home/hbai/Desktop/LiteSORT/results/off-the-shelf/fixed-settings/person_path_22-test_fixed-settings/{tracking_dir}/viz/{sequence}'
+    image_dir = f'/media/hbai/data/code/LiteSORT/datasets/PersonPath22/test/{sequence}/img1'
+    result_file = f'/media/hbai/data/code/LiteSORT/results/off-the-shelf/fixed-settings/person_path_22-test_fixed-settings/{tracking_dir}/data/{sequence}.txt'
+    output_dir = f'/media/hbai/data/code/LiteSORT/results/off-the-shelf/fixed-settings/person_path_22-test_fixed-settings/{sequence}/{tracking_dir}'
     video_output_path = f'{output_dir}_{tracking_method}.mp4'
 
     frame_paths = draw_bounding_boxes(image_dir, result_file, output_dir)
