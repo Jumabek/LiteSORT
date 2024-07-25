@@ -16,6 +16,10 @@ results/visualization
 results/fps
 
 yolo_tracking/
+yolo_tracking_orig_pc/
+DanceTrack/
+
+results/off-the-shelf/virat-s-train/
 
 cpu_temp_log.txt
 cpu_temp_logger.sh

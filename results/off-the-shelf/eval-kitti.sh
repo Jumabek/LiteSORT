@@ -9,7 +9,7 @@ BENCHMARK="KITTI-train"
 BASE_CMD="python3 TrackEval/scripts/run_kitti.py --TRACKERS_FOLDER"
 
 # Parent directory where all trackers' results are stored
-PARENT_TRACKERS_FOLDER="/media/hbai/data/code/LiteSORT/results/off-the-shelf/${BENCHMARK}_new_try"
+PARENT_TRACKERS_FOLDER="/media/hbai/data/code/LiteSORT/results/off-the-shelf/${BENCHMARK}"
 
 echo "Starting the evaluation script..."
 

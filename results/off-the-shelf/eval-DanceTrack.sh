@@ -3,17 +3,17 @@
 # List of resolutions and confidence thresholds
 RESOLUTIONS=(1280)
 CONFIDENCES=(.25)
-BENCHMARK="person_path_22" 
+BENCHMARK="DanceTrack" 
 
 # Base Commandx 
-BASE_CMD="python3 TrackEval/scripts/run_person_path_22.py"
+BASE_CMD="python3 TrackEval/scripts/run_mot_challenge.py"
 
 # Parent directory where all trackers' results are stored
-PARENT_TRACKERS_FOLDER="results/off-the-shelf"
+PARENT_TRACKERS_FOLDER="results/off-the-shelf/DanceTrack-train"
+
+# SORT__input_1280__conf_.25 LiteSORT__input_1280__conf_.25 DeepSORT__input_1280__conf_.25 StrongSORT__input_1280__conf_.25
 
 echo "Starting the evaluation script..."
-
-# BoTSORT__input_1280__conf_.25 ByteTrack__input_1280__conf_.25 DeepOC-SORT__input_1280__conf_.25 OCSORT__input_1280__conf_.25 
 
 # For every combination of resolution and confidence, run the evaluation
 for res in "${RESOLUTIONS[@]}"; do
@@ -26,23 +26,27 @@ for res in "${RESOLUTIONS[@]}"; do
         EVAL_CMD="${BASE_CMD} \
                     --BENCHMARK ${BENCHMARK} \
                     --TRACKERS_FOLDER ${PARENT_TRACKERS_FOLDER} \
-                    --SPLIT_TO_EVAL test \
-                    --TRACKERS_TO_EVAL BoTSORT__input_1280__conf_.25 \
+                    --SPLIT_TO_EVAL train \
+                    --TRACKERS_TO_EVAL LITE_BOTSORT__input_1280__conf_.25 LITE_DEEPOCSORT__input_1280__conf_.25 \
                     --TRACKER_SUB_FOLDER data \
                     --METRICS HOTA CLEAR Identity VACE \
                     --USE_PARALLEL True \
-                    --NUM_PARALLEL_CORES 95 \
+                    --NUM_PARALLEL_CORES 16 \
                     --GT_LOC_FORMAT '{gt_folder}/{seq}/gt/gt.txt' \
                     --OUTPUT_SUMMARY True \
                     --OUTPUT_EMPTY_CLASSES False \
                     --OUTPUT_DETAILED True \
-                    --PLOT_CURVES True"
+                    --PLOT_CURVES True \
+                    --GT_FOLDER '/media/hbai/data/code/LiteSORT/datasets/DanceTrack/train' \
+                    --SKIP_SPLIT_FOL True \
+                    --SEQMAP_FILE '/media/hbai/data/code/LiteSORT/datasets/DanceTrack/train_seqmap.txt' \
+                    "
 
         # Print the evaluation command
         echo "Evaluation command: ${EVAL_CMD}"
 
         # Run the evaluation for the current combination of resolution and confidence
-        eval $EVAL_CMD #> "${PARENT_TRACKERS_FOLDER}/evaluation_output_res_${res}_conf_${conf}.txt"
+        eval $EVAL_CMD > "${PARENT_TRACKERS_FOLDER}/${BENCHMARK}_LITE_evaluation_${res}_conf_${conf}.txt"
     done
 done
 
