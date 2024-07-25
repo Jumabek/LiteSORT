@@ -171,8 +171,12 @@ def create_detections(seq_dir, frame_index, model, min_height=160, reid_model=No
 
     # KITTI has png extension
     ext = '.jpg' if opt.dataset in [
-        'MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S'] else '.png'
-    img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}{ext}')
+        'MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S', 'DanceTrack'] else '.png'
+    if opt.dataset == 'DanceTrack':
+        img_path = os.path.join(seq_dir, 'img1', f'{frame_index:08}{ext}')
+    else:
+        img_path = os.path.join(seq_dir, 'img1', f'{frame_index:06}{ext}')
+    
 
     if not os.path.exists(img_path):
         raise ValueError(f"Image path {img_path} doesn't exist.")
@@ -343,7 +347,7 @@ def run(sequence_dir, output_file, min_confidence,
     #
     if verbose:
         print(f"storing predicted tracking results to {output_file}")
-    if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S']:
+    if opt.dataset in ['MOT17', 'MOT20', 'PersonPath22', 'VIRAT-S', 'DanceTrack']:
         f = open(output_file, 'w')
         for row in results:
             print('%d,%d,%.2f,%.2f,%.2f,%.2f,1,-1,-1,-1' % (

@@ -30,6 +30,8 @@ if __name__ == '__main__':
         process_sequence(sequence)
         break
 
+    # process_sequence('dancetrack0001')
+    
 # if __name__ == '__main__':
 #     with Pool(processes=4) as pool:  # Adjust number of processes based on your system's capability
 #         pool.map(process_sequence, opt.sequences)

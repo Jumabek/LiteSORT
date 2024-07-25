@@ -21,6 +21,7 @@ def process_sequence(seq, gpu_id):
         print(
             f'Processing video {seq} on {device} (process ID: {os.getpid()})...', flush=True)
         path_save = join(opt.dir_save, seq + '.txt')
+        print(f'Saving results to {path_save}')
         run(
             sequence_dir=join(opt.dir_dataset, seq),
             output_file=path_save,
@@ -28,8 +29,8 @@ def process_sequence(seq, gpu_id):
             nms_max_overlap=opt.nms_max_overlap,
             min_detection_height=opt.min_detection_height,
             nn_budget=opt.nn_budget,
-            display=False,
-            verbose=False,
+            display=True,
+            verbose=True,
             device=device
         )
         end_time = time.time()
