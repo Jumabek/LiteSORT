@@ -25,7 +25,7 @@ class WorkingDirectory(contextlib.ContextDecorator):
         os.chdir(self.cwd)
 
 
-def increment_path(path, exist_ok=False, sep='', mkdir=False):
+def increment_path(path, exist_ok=True, sep='', mkdir=False):
     """
     Increments a file or directory path, i.e. runs/exp --> runs/exp{sep}2, runs/exp{sep}3, ... etc.
 

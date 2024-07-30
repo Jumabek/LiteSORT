@@ -33,6 +33,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
+import os
 
 from ultralytics.nn.autobackend import AutoBackend
 from ultralytics.yolo.cfg import get_cfg
@@ -114,8 +115,8 @@ class BasePredictor:
         project = self.args.project or Path(
             SETTINGS['runs_dir']) / self.args.task
         name = self.args.name or f'{self.args.mode}'
-        return increment_path(Path(project) / name, exist_ok=self.args.exist_ok)
-
+        # return increment_path(Path(project) / name, exist_ok=self.args.exist_ok)
+        return increment_path(Path(project), exist_ok=self.args.exist_ok)
     def preprocess(self, im):
         """Prepares input image before inference.
 
@@ -139,7 +140,6 @@ class BasePredictor:
     def inference(self, im, *args, **kwargs):
         visualize = increment_path(self.save_dir / Path(self.batch[0][0]).stem,
                                    mkdir=True) if self.args.visualize and (not self.source_type.tensor) else False
-        # print(f'args (predictor.py): {args}')
         
         return self.model(im, augment=self.args.augment, visualize=visualize)
 
@@ -155,8 +155,9 @@ class BasePredictor:
         auto = same_shapes and self.model.pt
         return [LetterBox(self.imgsz, auto=auto, stride=self.model.stride)(image=x) for x in im]
 
-    def write_results(self, idx, results, batch):
+    def write_results(self, idx, results, batch, frame_number):
         """Write inference results to a file or directory."""
+                
         p, im, _ = batch
         log_string = ''
         if len(im.shape) == 3:
@@ -167,8 +168,13 @@ class BasePredictor:
         else:
             frame = getattr(self.dataset, 'frame', 0)
         self.data_path = p
-        self.txt_path = str(self.save_dir / 'labels' / p.stem) + \
-            ('' if self.dataset.mode == 'image' else f'_{frame}')
+        
+        # self.txt_path = str(self.save_dir / 'labels' / p.stem) + \
+        #     ('' if self.dataset.mode == 'image' else f'_{frame}')
+            
+        # temp_save_dir = os.path.dirname(self.save_dir)
+        self.txt_path = str(self.save_dir) + '/data'
+            
         log_string += '%gx%g ' % im.shape[2:]  # print string
         result = results[idx]
         log_string += result.verbose()
@@ -182,14 +188,21 @@ class BasePredictor:
             if not self.args.retina_masks:
                 plot_args['im_gpu'] = im[idx]
             self.plotted_img = result.plot(**plot_args)
+        # # Write (orig code)
+        # if self.args.save_txt:
+        #     result.save_txt(f'{self.txt_path}.txt',
+        #                     save_conf=self.args.save_conf)
+        
         # Write
         if self.args.save_txt:
-            result.save_txt(f'{self.txt_path}.txt',
-                            save_conf=self.args.save_conf)
+            result.save_txt(self.txt_path + '/' + self.args.name + '.txt',
+                            save_conf=self.args.save_conf,
+                            frame_number=frame_number)
+            
         if self.args.save_crop:
             result.save_crop(save_dir=self.save_dir / 'crops',
                              file_name=self.data_path.stem)
-
+            
         return log_string
 
     def postprocess(self, preds, img, orig_imgs):
@@ -243,8 +256,13 @@ class BasePredictor:
         self.setup_source(source if source is not None else self.args.source)
 
         # Check if save_dir/ label file exists
+        # if self.args.save or self.args.save_txt:
+        #     (self.save_dir / 'labels' if self.args.save_txt else self.save_dir).mkdir(
+        #         parents=True, exist_ok=True)
+       
+       
         if self.args.save or self.args.save_txt:
-            (self.save_dir / 'labels' if self.args.save_txt else self.save_dir).mkdir(
+            (self.save_dir / 'data').mkdir(
                 parents=True, exist_ok=True)
 
         # Warmup model
@@ -258,8 +276,12 @@ class BasePredictor:
         self.run_callbacks('on_predict_start')
         for batch in self.dataset:
             self.run_callbacks('on_predict_batch_start')
+            # possible to get frame number from batch[0]
+            # print(f'batch: {batch}')
+            
             self.batch = batch
-            path, im0s, vid_cap, s = batch
+            # path, im0s, vid_cap, s = batch
+            path, im0s, vid_cap, s, frame_number = batch
 
             # Preprocess
             with profilers[0]:
@@ -288,8 +310,10 @@ class BasePredictor:
                 p, im0 = path[i], None if self.source_type.tensor else im0s[i].copy()
                 p = Path(p)
 
+                
                 if self.args.verbose or self.args.save or self.args.save_txt or self.args.show:
-                    s += self.write_results(i, self.results, (p, im, im0))
+                    # s += self.write_results(i, self.results, (p, im, im0))
+                    s += self.write_results(i, self.results, (p, im, im0), frame_number)
                 if self.args.save or self.args.save_txt:
                     self.results[i].save_dir = self.save_dir.__str__()
                 if self.args.show and self.plotted_img is not None:

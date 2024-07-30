@@ -110,7 +110,7 @@ class Results(SimpleClass):
         self.path = path
         self.save_dir = None
         self._keys = ('boxes', 'masks', 'probs', 'keypoints')
-
+        
     def __getitem__(self, idx):
         """Return a Results object for the specified index."""
         r = self.new()
@@ -281,7 +281,7 @@ class Results(SimpleClass):
                 log_string += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, "
         return log_string
 
-    def save_txt(self, txt_file, save_conf=False):
+    def save_txt(self, txt_file, save_conf=False, frame_number=-11):
         """
         Save predictions into txt file.
 
@@ -298,25 +298,44 @@ class Results(SimpleClass):
             # Classify
             [texts.append(f'{probs.data[j]:.2f} {self.names[j]}')
              for j in probs.top5]
+        # elif boxes:
+        #     # Detect/segment/pose
+        #     for j, d in enumerate(boxes):
+        #         c, conf, id = int(d.cls), float(
+        #             d.conf), None if d.id is None else int(d.id.item())
+        #         line = (c, *d.xywhn.view(-1))
+        #         if masks:
+        #             # reversed mask.xyn, (n,2) to (n*2)
+        #             seg = masks[j].xyn[0].copy().reshape(-1)
+        #             line = (c, *seg)
+        #         if kpts is not None:
+        #             kpt = kpts[j].xyn.reshape(-1).tolist()
+        #             line += (*kpt, )
+        #         line += (conf, ) * save_conf + (() if id is None else (id, ))
+        #         texts.append(('%g ' * len(line)).rstrip() % line)
+        
         elif boxes:
             # Detect/segment/pose
             for j, d in enumerate(boxes):
-                c, conf, id = int(d.cls), float(
-                    d.conf), None if d.id is None else int(d.id.item())
-                line = (c, *d.xywhn.view(-1))
-                if masks:
-                    # reversed mask.xyn, (n,2) to (n*2)
-                    seg = masks[j].xyn[0].copy().reshape(-1)
-                    line = (c, *seg)
-                if kpts is not None:
-                    kpt = kpts[j].xyn.reshape(-1).tolist()
-                    line += (*kpt, )
-                line += (conf, ) * save_conf + (() if id is None else (id, ))
-                texts.append(('%g ' * len(line)).rstrip() % line)
+                # need to format each line in MOT format
+                id =  None if d.id is None else int(d.id.item())
+                
+                # Extract the values and format them
+                values = d.xywh.view(-1).tolist()
+                x_top_left, y_top_left, width, height = values
+   
+                line = f"{frame_number},{id},{x_top_left:.2f},{y_top_left:.2f},{width:.2f},{height:.2f},1,-1,-1,-1"
+
+
+                # print(f'line: {line}')
+                if id is not None:
+                    texts.append(line) 
 
         if texts:
+
             with open(txt_file, 'a') as f:
-                f.writelines(text + '\n' for text in texts)
+                f.writelines(text + '\n' for text in reversed(texts))
+            
 
     def save_crop(self, save_dir, file_name=Path('im.jpg')):
         """

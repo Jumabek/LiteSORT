@@ -235,8 +235,9 @@ class LoadImages:
             if im0 is None:
                 raise FileNotFoundError(f'Image Not Found {path}')
             s = f'image {self.count}/{self.nf} {path}: '
+            frame_number = self.count
 
-        return [path], [im0], self.cap, s
+        return [path], [im0], self.cap, s, frame_number
 
     def _new_video(self, path):
         """Create a new video capture object."""
