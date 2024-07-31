@@ -322,7 +322,15 @@ class Results(SimpleClass):
                 
                 # Extract the values and format them
                 values = d.xywh.view(-1).tolist()
-                x_top_left, y_top_left, width, height = values
+                # x_top_left, y_top_left, width, height = values
+                
+                x_center, y_center, width, height = values
+                
+                # Convert center coordinates to top-left coordinates
+                x_top_left = x_center - (width / 2)
+                y_top_left = y_center - (height / 2)
+                    
+                
    
                 line = f"{frame_number},{id},{x_top_left:.2f},{y_top_left:.2f},{width:.2f},{height:.2f},1,-1,-1,-1"
 
